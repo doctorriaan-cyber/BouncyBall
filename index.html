@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Bouncing Balls Simulation</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            background-color: #121212;
+            font-family: sans-serif;
+        }
+
+        canvas {
+            display: block;
+            touch-action: none; /* Prevents default touch actions like scrolling on mobile */
+            background-color: #121212;
+        }
+
+        .controls-container {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: rgba(40, 40, 40, 0.5);
+            padding: 8px 12px;
+            border-radius: 8px;
+            z-index: 10;
+        }
+
+        .controls-container label {
+            color: #E0E0E0;
+            font-size: 16px;
+            user-select: none;
+        }
+
+        .controls-container input {
+            color: #FFFFFF;
+            background-color: #333;
+            border: 1px solid #555;
+            border-radius: 4px;
+            padding: 5px;
+            width: 50px;
+            font-size: 16px;
+            text-align: center;
+            /* Hide the default number input arrows */
+            -moz-appearance: textfield;
+        }
+
+        .controls-container input::-webkit-outer-spin-button,
+        .controls-container input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls-container">
+        <label for="ball-count-input">Balls:</label>
+        <input type="number" id="ball-count-input" value="5" min="1" max="50" aria-label="Number of balls">
+    </div>
+    <canvas id="simulation-canvas"></canvas>
+    <script type="module">
+        /**
+         * @license
+         * SPDX-License-Identifier: Apache-2.0
+        */
+
+        // --- Canvas and Context Setup ---
+        const canvas = document.getElementById('simulation-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // --- Simulation Constants and State ---
+        const balls = [];
+        let numBalls = 5;
+        const gravity = { x: 0, y: 0.25 };
+        const ballDamping = 0.85; // Energy retained on bounce for balls
+        const substeps = 4; // Increase for more accuracy, decrease for performance
+        const band = {
+            y: 0,
+            pullY: 0,
+            pullX: 0,
+            pullVelocity: 0,
+            isDragging: false,
+            stiffness: 0.1, // Spring stiffness for the band's snap-back motion
+            damping: 0.9,   // Damping for the band's snap-back motion
+            pullThreshold: 50
+        };
+
+        // --- Core Functions ---
+
+        /**
+         * Resizes the canvas to fill the window and reinitializes ball positions.
+         */
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            band.y = canvas.height * 2 / 3;
+            band.pullY = band.y;
+            initBalls();
+        }
+
+        /**
+         * Creates and initializes the set of balls based on the current numBalls.
+         */
+        function initBalls() {
+            balls.length = 0; // Clear existing balls
+            if (numBalls <= 0) return;
+
+            const radius = Math.min(canvas.width, canvas.height) / 25;
+            const spacing = (canvas.width * 0.8) / (numBalls > 1 ? numBalls - 1 : 1);
+            const startX = numBalls > 1 ? canvas.width * 0.1 : canvas.width / 2;
+
+            for (let i = 0; i < numBalls; i++) {
+                balls.push({
+                    position: {
+                        x: startX + i * spacing,
+                        y: band.y - radius - (Math.random() * 5)
+                    },
+                    velocity: { x: 0, y: 0 },
+                    radius: radius,
+                    mass: radius,
+                    color: '#FFFFFF'
+                });
+            }
+        }
+
+
+        // --- Physics and Geometry Helpers ---
+
+        /**
+         * Solves a quadratic equation ax^2+bx+c=0 for t in the range [0, 1].
+         */
+        function solveQuadraticForT(a, b, c) {
+            if (Math.abs(a) < 1e-6) { // Linear
+                return (Math.abs(b) > 1e-6 && -c / b >= 0 && -c / b <= 1) ? -c / b : -1;
+            }
+            const disc = b * b - 4 * a * c;
+            if (disc < 0) return -1;
+            const sqrtDisc = Math.sqrt(disc);
+            const t1 = (-b + sqrtDisc) / (2 * a);
+            const t2 = (-b - sqrtDisc) / (2 * a);
+            if (t1 >= 0 && t1 <= 1) return t1;
+            if (t2 >= 0 && t2 <= 1) return t2;
+            return -1;
+        }
+
+        /**
+         * Calculates the y-coordinate, upward-pointing normal vector, and curve parameter 't' of the band at a given x-coordinate.
+         */
+        function getBandGeometry(x) {
+            const p0x = 0, p1x = band.pullX, p2x = canvas.width;
+            const a = p0x - 2 * p1x + p2x;
+            const b = 2 * (p1x - p0x);
+            const c = p0x - x;
+            const t = solveQuadraticForT(a, b, c);
+
+            if (t === -1) return null;
+
+            const { y: baseY, pullY } = band;
+            const y = (1 - t) ** 2 * baseY + 2 * (1 - t) * t * pullY + t ** 2 * baseY;
+
+            const tx = 2 * (1 - t) * (band.pullX - 0) + 2 * t * (canvas.width - band.pullX);
+            const ty = 2 * (1 - t) * (pullY - baseY) + 2 * t * (baseY - pullY);
+
+            let normal = { x: -ty, y: tx };
+            const mag = Math.sqrt(normal.x ** 2 + normal.y ** 2);
+            if (mag > 0) {
+                normal.x /= mag;
+                normal.y /= mag;
+            }
+
+            if (normal.y > 0) {
+                normal.x *= -1;
+                normal.y *= -1;
+            }
+
+            return { y, normal, t };
+        }
+
+
+        /**
+         * Applies physics forces and handles collisions for a single sub-step.
+         */
+        function applyPhysics(ball) {
+            // 1. APPLY FORCES
+            ball.velocity.y += gravity.y / substeps;
+            ball.velocity.x *= 0.999; // Air resistance
+            ball.velocity.y *= 0.999;
+
+            // 2. UPDATE POSITION
+            ball.position.x += ball.velocity.x / substeps;
+            ball.position.y += ball.velocity.y / substeps;
+
+            // 3. RESOLVE COLLISIONS
+            // Wall collisions
+            if (ball.position.x + ball.radius > canvas.width || ball.position.x - ball.radius < 0) {
+                ball.position.x = ball.position.x < ball.radius ? ball.radius : canvas.width - ball.radius;
+                ball.velocity.x *= -ballDamping;
+            }
+            if (ball.position.y - ball.radius < 0) {
+                ball.position.y = ball.radius;
+                ball.velocity.y *= -ballDamping;
+            }
+
+            // Band collision
+            const isBandStretched = Math.abs(band.pullY - band.y) > 1;
+
+            if (isBandStretched) {
+                const bandGeom = getBandGeometry(ball.position.x);
+                if (bandGeom) {
+                    const { y: bandY, normal, t } = bandGeom;
+                    const overlap = (ball.position.y + ball.radius) - bandY;
+                    if (overlap > 0) {
+                        // Position correction
+                        ball.position.x += normal.x * overlap;
+                        ball.position.y += normal.y * overlap;
+
+                        // Impulse-based velocity correction
+                        // Velocity of the band at the point of contact 't'
+                        const bandVy = 2 * (1 - t) * t * band.pullVelocity;
+                        const bandVx = 0; // Band only moves vertically when snapping back
+
+                        // Relative velocity of the ball with respect to the band
+                        const relativeVx = ball.velocity.x - bandVx;
+                        const relativeVy = ball.velocity.y - bandVy;
+
+                        // Relative speed along the normal direction
+                        const relativeSpeedNormal = relativeVx * normal.x + relativeVy * normal.y;
+                        
+                        // Only apply bounce if ball is moving towards the band (v_rel . normal < 0)
+                        if (relativeSpeedNormal < 0) {
+                            // Calculate impulse magnitude
+                            const impulseMagnitude = -(1 + ballDamping) * relativeSpeedNormal;
+                            
+                            // Apply impulse to the ball's velocity
+                            ball.velocity.x += normal.x * impulseMagnitude;
+                            ball.velocity.y += normal.y * impulseMagnitude;
+                        }
+                        ball.velocity.x *= 0.98; // Rolling friction
+                    }
+                }
+            } else {
+                // Flat band collision
+                if (ball.position.y + ball.radius >= band.y && ball.velocity.y > 0) {
+                    const overlap = (ball.position.y + ball.radius) - band.y;
+                    ball.position.y -= overlap;
+                    ball.velocity.y *= -ballDamping;
+                    ball.velocity.x *= 0.98; // Friction
+                }
+            }
+        }
+
+
+        /**
+         * Handles elastic collisions between all pairs of balls.
+         */
+        function handleCollisions() {
+            for (let i = 0; i < balls.length; i++) {
+                for (let j = i + 1; j < balls.length; j++) {
+                    const ballA = balls[i];
+                    const ballB = balls[j];
+                    const dx = ballB.position.x - ballA.position.x;
+                    const dy = ballB.position.y - ballA.position.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    const minDistance = ballA.radius + ballB.radius;
+
+                    if (distance < minDistance) {
+                        const overlap = (minDistance - distance) / 2;
+                        const nx = dx / distance;
+                        const ny = dy / distance;
+                        ballA.position.x -= overlap * nx;
+                        ballA.position.y -= overlap * ny;
+                        ballB.position.x += overlap * nx;
+                        ballB.position.y += overlap * ny;
+
+                        const kx = ballA.velocity.x - ballB.velocity.x;
+                        const ky = ballA.velocity.y - ballB.velocity.y;
+                        const p = 2 * (nx * kx + ny * ky) / (ballA.mass + ballB.mass);
+
+                        ballA.velocity.x -= p * ballB.mass * nx;
+                        ballA.velocity.y -= p * ballB.mass * ny;
+                        ballB.velocity.x += p * ballA.mass * nx;
+                        ballB.velocity.y += p * ballA.mass * ny;
+                    }
+                }
+            }
+        }
+
+        /**
+         * Renders the entire scene.
+         */
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            if (Math.abs(band.pullY - band.y) > 1) {
+                ctx.moveTo(0, band.y);
+                ctx.quadraticCurveTo(band.pullX, band.pullY, canvas.width, band.y);
+            } else {
+                ctx.moveTo(0, band.y);
+                ctx.lineTo(canvas.width, band.y);
+            }
+            ctx.stroke();
+
+            balls.forEach(ball => {
+                ctx.beginPath();
+                ctx.arc(ball.position.x, ball.position.y, ball.radius, 0, Math.PI * 2);
+                ctx.fillStyle = ball.color;
+                ctx.fill();
+                ctx.closePath();
+            });
+        }
+
+        /**
+         * Updates the band's spring physics when not being dragged.
+         */
+        function updateBand() {
+            if (band.isDragging) return;
+
+            const displacement = band.pullY - band.y;
+            // Stop simulation when the band is at rest to save energy
+            if (Math.abs(displacement) < 0.5 && Math.abs(band.pullVelocity) < 0.5) {
+                band.pullY = band.y;
+                band.pullVelocity = 0;
+                return;
+            }
+
+            const springForce = -band.stiffness * displacement;
+            band.pullVelocity += springForce;
+            band.pullVelocity *= band.damping; // Apply damping
+            band.pullY += band.pullVelocity;
+        }
+
+        /**
+         * The main simulation loop.
+         */
+        function loop() {
+            updateBand();
+            for (let i = 0; i < substeps; i++) {
+                balls.forEach(applyPhysics);
+                handleCollisions();
+            }
+            draw();
+            requestAnimationFrame(loop);
+        }
+
+        // --- Event Handlers ---
+
+        function getEventCoords(e) {
+            if ('touches' in e) {
+                e.preventDefault();
+                return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            }
+            return { x: e.clientX, y: e.clientY };
+        }
+
+        function handleStart(e) {
+            const coords = getEventCoords(e);
+            const isBandPulled = band.pullY > band.y;
+            // Allow grabbing near the resting line, or anywhere below it if already pulled
+            if (Math.abs(coords.y - band.y) < band.pullThreshold || (isBandPulled && coords.y > band.y)) {
+                band.isDragging = true;
+                band.pullVelocity = 0; // User takes control, so stop band's own motion
+                band.pullX = coords.x;
+                band.pullY = Math.max(coords.y, band.y);
+            }
+        }
+
+        function handleMove(e) {
+            if (!band.isDragging) return;
+            const coords = getEventCoords(e);
+            band.pullX = coords.x;
+            band.pullY = Math.max(coords.y, band.y);
+        }
+
+        function handleEnd() {
+            if (!band.isDragging) return;
+            band.isDragging = false;
+            // The updateBand() function will now take over and create the spring motion
+        }
+
+        // --- Initialization ---
+        const ballCountInput = document.getElementById('ball-count-input');
+
+        ballCountInput.addEventListener('input', () => {
+            const count = parseInt(ballCountInput.value, 10);
+            if (!isNaN(count) && count > 0 && count <= 50) {
+                numBalls = count;
+                initBalls();
+            }
+        });
+
+
+        window.addEventListener('resize', resizeCanvas);
+        canvas.addEventListener('mousedown', handleStart);
+        canvas.addEventListener('mousemove', handleMove);
+        window.addEventListener('mouseup', handleEnd);
+        canvas.addEventListener('touchstart', handleStart, { passive: false });
+        canvas.addEventListener('touchmove', handleMove, { passive: false });
+        window.addEventListener('touchend', handleEnd);
+        window.addEventListener('touchcancel', handleEnd);
+
+        resizeCanvas();
+        loop();
+    </script>
+</body>
+</html>
