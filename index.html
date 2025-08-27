@@ -59,30 +59,6 @@
             height: 100%;
         }
 
-        #burger-menu-btn {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            z-index: 10;
-            background: var(--surface-color-controls);
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            padding: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        #burger-menu-btn svg {
-            fill: var(--text-color);
-        }
-
-        #burger-menu-btn:hover {
-            background: var(--surface-color-controls-hover);
-        }
-
-
         .controls-container {
             position: absolute;
             top: 15px;
@@ -193,7 +169,7 @@
             height: 100%;
             background-color: var(--surface-color);
             z-index: 20;
-            display: flex;
+            display: none;
             flex-direction: column;
             align-items: center;
             overflow-y: auto;
@@ -301,6 +277,19 @@
             background-color: var(--btn-primary-hover-bg);
         }
 
+        .btn-list {
+            margin-top: 12px;
+            pointer-events: auto; /* Allow clicks since parent has pointer-events: none */
+            background-color: var(--btn-primary-bg);
+            color: var(--btn-primary-text);
+            font-size: 14px;
+            padding: 8px 16px;
+        }
+
+        .btn-list:hover {
+            background-color: var(--btn-primary-hover-bg);
+        }
+
         /* Modal Styles */
         .modal-overlay {
             position: fixed;
@@ -309,7 +298,7 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.7);
-            display: flex;
+            display: none;
             justify-content: center;
             align-items: center;
             z-index: 1000;
@@ -497,117 +486,130 @@
     </style>
 </head>
 <body>
+
     <div id="canvas-container">
-        <button id="burger-menu-btn" aria-label="Open settings">
-            <svg viewBox="0 0 100 80" width="24" height="24">
-                <rect width="100" height="15" rx="8"></rect>
-                <rect y="30" width="100" height="15" rx="8"></rect>
-                <rect y="60" width="100" height="15" rx="8"></rect>
-            </svg>
-        </button>
+        <canvas id="simulation-canvas"></canvas>
+
         <div class="controls-container">
-            <label for="sparkling-float-toggle">Vonkelwyn dryf</label>
+            <label for="ball-count-input">Aantal balle:</label>
+            <input type="number" id="ball-count-input" value="5" min="1" max="50">
             <label class="toggle-switch">
                 <input type="checkbox" id="sparkling-float-toggle">
                 <span class="slider round"></span>
             </label>
-            <label for="ball-count-input">Opsies:</label>
-            <input type="number" id="ball-count-input" value="5" min="1" max="50" aria-label="Number of balls">
+             <label for="sparkling-float-toggle">Vonkelwyn dryf</label>
         </div>
-        <canvas id="simulation-canvas"></canvas>
-        <svg id="winner-arrow-svg">
-            <path id="winner-arrow-path"></path>
-        </svg>
+
         <div id="trek-my-indicator">
             <span>Trek my</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 5V19M12 19L7 14M12 19L17 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 5v14"></path><path d="m19 12-7 7-7-7"></path>
             </svg>
             <div class="instructions">
-                <span>1: Sit jou gunsteling drankies op die lys links bo</span>
-                <span>2: Trek om te sien wat ons gaan oopmaak</span>
+                <span>Trek die rekkie af en los om die wenner te kies.</span>
+                <span>Klik op die knoppie hieronder om die lys van drankies te wysig.</span>
             </div>
+             <button id="show-drink-list-btn" class="btn btn-list">Lys van drankies</button>
         </div>
-        <div id="results-container">
-             <span class="result-name" id="winner-name"></span>
+
+        <div id="results-container" style="opacity: 0;">
+            <span class="result-name" id="winner-name"></span>
         </div>
+
+        <svg id="winner-arrow-svg" style="opacity: 0;">
+            <path id="winner-arrow-path"></path>
+        </svg>
+
     </div>
 
-    <!-- Settings Screen -->
-    <div id="settings-screen" style="display: none;">
+    <div id="settings-screen">
         <button id="close-settings-btn" aria-label="Close settings">&times;</button>
-        <main class="wine-section">
-            <h2>My gunsteling drankies</h2>
+        <div class="wine-section">
+            <h2>Lys van drankies</h2>
             <ul id="wine-list"></ul>
-            <button id="add-wine-btn" class="btn">+ Voeg drankie by</button>
-        </main>
+            <button id="add-wine-btn" class="btn">Voeg drankie by</button>
+        </div>
     </div>
 
-
-    <!-- Modal -->
-    <div id="add-wine-modal" class="modal-overlay" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-        <div class="modal-content" role="document">
+    <div id="add-wine-modal" class="modal-overlay">
+        <div class="modal-content">
             <form id="add-wine-form">
-                <h3 id="modal-title">Voeg 'n Nuwe Drankie By</h3>
+                <h3>Voeg 'n nuwe drankie by</h3>
                 <div class="form-group">
-                    <label for="wine-name-input">Drankie Naam</label>
-                    <input type="text" id="wine-name-input" required placeholder="bv. Pinot Noir">
+                    <label for="wine-name-input">Naam</label>
+                    <input type="text" id="wine-name-input" required placeholder="bv. Meerlust Rubicon">
                 </div>
                 <div class="form-group">
-                    <p>Tipe Drankie</p>
+                    <p>Tipe</p>
                     <div class="wine-type-selector">
-                        <input type="radio" id="wine-type-red" name="wine-type" value="red" checked>
-                        <label for="wine-type-red" class="wine-type-option" aria-label="Red Wine">
-                            <canvas id="preview-canvas-red" width="60" height="60"></canvas>
-                            <span>Rooi</span>
+                        <label>
+                            <input type="radio" name="wine-type" value="red" checked>
+                            <div class="wine-type-option">
+                                <canvas id="preview-canvas-red" width="56" height="56"></canvas>
+                                <span>Rooiwyn</span>
+                            </div>
                         </label>
-                        
-                        <input type="radio" id="wine-type-white" name="wine-type" value="white">
-                        <label for="wine-type-white" class="wine-type-option" aria-label="White Wine">
-                            <canvas id="preview-canvas-white" width="60" height="60"></canvas>
-                            <span>Wit</span>
+                         <label>
+                            <input type="radio" name="wine-type" value="white">
+                            <div class="wine-type-option">
+                                <canvas id="preview-canvas-white" width="56" height="56"></canvas>
+                                <span>Wiwyn</span>
+                            </div>
                         </label>
-                        
-                        <input type="radio" id="wine-type-rose" name="wine-type" value="rose">
-                        <label for="wine-type-rose" class="wine-type-option" aria-label="Rosé Wine">
-                            <canvas id="preview-canvas-rose" width="60" height="60"></canvas>
-                            <span>Rosé</span>
+                         <label>
+                            <input type="radio" name="wine-type" value="rose">
+                            <div class="wine-type-option">
+                                <canvas id="preview-canvas-rose" width="56" height="56"></canvas>
+                                <span>Rosé</span>
+                            </div>
                         </label>
-                        
-                        <input type="radio" id="wine-type-sparkling" name="wine-type" value="sparkling">
-                        <label for="wine-type-sparkling" class="wine-type-option" aria-label="Sparkling Wine">
-                            <canvas id="preview-canvas-sparkling" width="60" height="60"></canvas>
-                            <span>Vonkelwyn</span>
+                         <label>
+                            <input type="radio" name="wine-type" value="sparkling">
+                            <div class="wine-type-option">
+                                <canvas id="preview-canvas-sparkling" width="56" height="56"></canvas>
+                                <span>Vonkelwyn</span>
+                            </div>
                         </label>
-
-                        <input type="radio" id="wine-type-dessert" name="wine-type" value="dessert">
-                        <label for="wine-type-dessert" class="wine-type-option" aria-label="Dessert Wine">
-                            <canvas id="preview-canvas-dessert" width="60" height="60"></canvas>
-                            <span>Soetwyn</span>
+                         <label>
+                            <input type="radio" name="wine-type" value="dessert">
+                            <div class="wine-type-option">
+                                <canvas id="preview-canvas-dessert" width="56" height="56"></canvas>
+                                <span>Nageregwyn</span>
+                            </div>
                         </label>
-
-                        <input type="radio" id="wine-type-gin" name="wine-type" value="gin">
-                        <label for="wine-type-gin" class="wine-type-option" aria-label="Gin">
-                            <canvas id="preview-canvas-gin" width="60" height="60"></canvas>
-                            <span>Gin</span>
+                         <label>
+                            <input type="radio" name="wine-type" value="gin">
+                            <div class="wine-type-option">
+                                <canvas id="preview-canvas-gin" width="56" height="56"></canvas>
+                                <span>Gin</span>
+                            </div>
                         </label>
-
-                        <input type="radio" id="wine-type-whisky" name="wine-type" value="whisky">
-                        <label for="wine-type-whisky" class="wine-type-option" aria-label="Whisky">
-                            <canvas id="preview-canvas-whisky" width="60" height="60"></canvas>
-                            <span>Whisky</span>
+                         <label>
+                            <input type="radio" name="wine-type" value="whisky">
+                             <div class="wine-type-option">
+                                <canvas id="preview-canvas-whisky" width="56" height="56"></canvas>
+                                <span>Whisky</span>
+                            </div>
                         </label>
-
-                        <input type="radio" id="wine-type-beer" name="wine-type" value="beer">
-                        <label for="wine-type-beer" class="wine-type-option" aria-label="Beer">
-                            <canvas id="preview-canvas-beer" width="60" height="60"></canvas>
-                            <span>Bier</span>
+                         <label>
+                            <input type="radio" name="wine-type" value="beer">
+                             <div class="wine-type-option">
+                                <canvas id="preview-canvas-beer" width="56" height="56"></canvas>
+                                <span>Bier</span>
+                            </div>
+                        </label>
+                        <label>
+                            <input type="radio" name="wine-type" value="cocktail">
+                            <div class="wine-type-option">
+                                <canvas id="preview-canvas-cocktail" width="56" height="56"></canvas>
+                                <span>Skemerkelkie</span>
+                            </div>
                         </label>
                     </div>
                 </div>
                 <div class="modal-actions">
                     <button type="button" id="cancel-btn" class="btn btn-secondary">Kanselleer</button>
-                    <button type="submit" class="btn btn-primary">Voeg By</button>
+                    <button type="submit" class="btn btn-primary">Voeg by</button>
                 </div>
             </form>
         </div>
@@ -675,15 +677,14 @@
         const addWineForm = document.getElementById('add-wine-form');
         const wineNameInput = document.getElementById('wine-name-input');
         const sparklingFloatToggle = document.getElementById('sparkling-float-toggle');
-        const burgerMenuBtn = document.getElementById('burger-menu-btn');
         const settingsScreen = document.getElementById('settings-screen');
         const closeSettingsBtn = document.getElementById('close-settings-btn');
         const trekMyIndicator = document.getElementById('trek-my-indicator');
         const resultsContainer = document.getElementById('results-container');
         const winnerName = document.getElementById('winner-name');
         const winnerArrowSvg = document.getElementById('winner-arrow-svg');
-        // FIX: Cast to unknown first to correctly cast HTMLElement to SVGPathElement
         const winnerArrowPath = document.getElementById('winner-arrow-path');
+        const showDrinkListBtn = document.getElementById('show-drink-list-btn');
 
 
         // --- Modal Animation State ---
@@ -716,7 +717,6 @@
             return [
                 { name: 'Badsberg Hanepoot Jerepigo', type: 'dessert', color: WINE_COLORS.dessert },
                 { name: 'Meerlust Cab Sav', type: 'red', color: WINE_COLORS.red },
-                { name: 'Cosmopolitan', type: 'cocktail', color: WINE_COLORS.cocktail },
                 { name: 'Stellenbrau Lager', type: 'beer', color: WINE_COLORS.beer },
                 { name: 'Delheim Spatzendreck', type: 'dessert', color: WINE_COLORS.dessert },
                 { name: 'Blind Tiger gin', type: 'gin', color: WINE_COLORS.gin },
@@ -861,7 +861,7 @@
         }
 
 
-        // --- Physics and Geometry Helpers (unchanged) ---
+        // --- Physics and Geometry Helpers ---
 
         /**
          * Solves a quadratic equation ax^2+bx+c=0 for t in the range [0, 1].
@@ -1640,7 +1640,7 @@
         function startModalAnimation() {
             if (modalAnimationId) return; // Already running
 
-            const types = ['red', 'white', 'rose', 'sparkling', 'dessert', 'gin', 'whisky', 'beer'];
+            const types = ['red', 'white', 'rose', 'sparkling', 'dessert', 'gin', 'whisky', 'beer', 'cocktail'];
             const radius = 28; // Radius for the preview balls
             
             types.forEach(type => {
@@ -1835,7 +1835,7 @@
         wineList.addEventListener('click', handleDeleteWine);
 
         // Settings screen listeners
-        burgerMenuBtn.addEventListener('click', () => {
+        showDrinkListBtn.addEventListener('click', () => {
             settingsScreen.style.display = 'flex';
         });
         closeSettingsBtn.addEventListener('click', () => {
