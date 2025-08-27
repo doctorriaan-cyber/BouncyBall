@@ -3,16 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Bouncing Balls Simulation</title>
+    <title>Wyn Bouncy ball</title>
+    <meta name="description" content="Bonsballetjie vir wyn seleksie">
     <style>
+        :root {
+            --bg-color: #121212;
+            --text-color: #E0E0E0;
+            --text-color-light: #aaa;
+            --text-color-subtle: rgba(255, 255, 255, 0.7);
+            --text-color-instruction: rgba(255, 255, 255, 0.6);
+            --surface-color: #1a1a1a;
+            --surface-color-2: #282828;
+            --surface-color-controls: rgba(40, 40, 40, 0.7);
+            --surface-color-controls-hover: rgba(60, 60, 60, 0.9);
+            --input-bg: #333;
+            --input-border: #555;
+            --input-disabled-bg: #444;
+            --input-disabled-color: #888;
+            --modal-bg: #2c3e50;
+            --modal-input-bg: #34495e;
+            --modal-input-border: #7f8c8d;
+            --modal-text-color: #ecf0f1;
+            --results-bg: rgba(20, 20, 20, 0.85);
+            --results-border: rgba(255, 255, 255, 0.2);
+            --winner-name-color: #3498db;
+            --winner-arrow-color: #5dade2;
+            --rubber-band-color: #FFFFFF;
+
+            --btn-primary-bg: #3498db;
+            --btn-primary-hover-bg: #2980b9;
+            --btn-primary-text: white;
+        }
+
         body, html {
             margin: 0;
             padding: 0;
             width: 100%;
-            background-color: #121212;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--bg-color);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            color: #E0E0E0;
-            scroll-behavior: smooth;
+            color: var(--text-color);
         }
 
         #canvas-container {
@@ -23,10 +54,34 @@
         canvas {
             display: block;
             touch-action: none;
-            background-color: #121212;
+            background-color: var(--bg-color);
             width: 100%;
             height: 100%;
         }
+
+        #burger-menu-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            z-index: 10;
+            background: var(--surface-color-controls);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #burger-menu-btn svg {
+            fill: var(--text-color);
+        }
+
+        #burger-menu-btn:hover {
+            background: var(--surface-color-controls-hover);
+        }
+
 
         .controls-container {
             position: absolute;
@@ -35,22 +90,22 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            background-color: rgba(40, 40, 40, 0.7);
+            background-color: var(--surface-color-controls);
             padding: 8px 12px;
             border-radius: 8px;
             z-index: 10;
         }
 
         .controls-container label {
-            color: #E0E0E0;
+            color: var(--text-color);
             font-size: 16px;
             user-select: none;
         }
 
         .controls-container input {
-            color: #FFFFFF;
-            background-color: #333;
-            border: 1px solid #555;
+            color: var(--text-color);
+            background-color: var(--input-bg);
+            border: 1px solid var(--input-border);
             border-radius: 4px;
             padding: 5px;
             width: 50px;
@@ -60,8 +115,8 @@
         }
 
         .controls-container input:disabled {
-            background-color: #444;
-            color: #888;
+            background-color: var(--input-disabled-bg);
+            color: var(--input-disabled-color);
             cursor: not-allowed;
         }
 
@@ -93,7 +148,7 @@
           left: 0;
           right: 0;
           bottom: 0;
-          background-color: #555;
+          background-color: var(--input-border);
           transition: .4s;
         }
 
@@ -109,11 +164,11 @@
         }
 
         input:checked + .slider {
-          background-color: #3498db;
+          background-color: var(--btn-primary-bg);
         }
 
         input:focus + .slider {
-          box-shadow: 0 0 1px #3498db;
+          box-shadow: 0 0 1px var(--btn-primary-bg);
         }
 
         input:checked + .slider:before {
@@ -129,10 +184,37 @@
         }
 
 
+        /* Settings Screen */
+        #settings-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--surface-color);
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-y: auto;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        #close-settings-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 2.5rem;
+            line-height: 1;
+            cursor: pointer;
+        }
+
         .wine-section {
-            background-color: #1a1a1a;
-            padding: 40px 20px;
-            min-height: 40vh;
+            width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -140,6 +222,7 @@
 
         .wine-section h2 {
             font-size: 2rem;
+            margin-top: 2rem;
             margin-bottom: 2rem;
             text-align: center;
         }
@@ -157,7 +240,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 1rem;
-            background-color: #282828;
+            background-color: var(--surface-color-2);
             border-radius: 8px;
             margin-bottom: 1rem;
             font-size: 1.1rem;
@@ -171,7 +254,7 @@
 
         .wine-number {
             font-weight: bold;
-            color: #888;
+            color: var(--text-color-light);
             min-width: 2ch; /* Reserve space for up to 2 digits */
         }
 
@@ -210,12 +293,12 @@
         }
 
         #add-wine-btn {
-            background-color: #3498db;
-            color: white;
+            background-color: var(--btn-primary-bg);
+            color: var(--btn-primary-text);
         }
 
         #add-wine-btn:hover {
-            background-color: #2980b9;
+            background-color: var(--btn-primary-hover-bg);
         }
 
         /* Modal Styles */
@@ -233,7 +316,8 @@
         }
 
         .modal-content {
-            background-color: #2c3e50;
+            background-color: var(--modal-bg);
+            color: var(--modal-text-color);
             padding: 2rem;
             border-radius: 8px;
             width: 90%;
@@ -260,18 +344,19 @@
         .form-group input[type="text"] {
             width: 100%;
             padding: 10px;
-            background-color: #34495e;
-            border: 1px solid #7f8c8d;
+            background-color: var(--modal-input-bg);
+            border: 1px solid var(--modal-input-border);
             border-radius: 4px;
-            color: #ecf0f1;
+            color: var(--modal-text-color);
             font-size: 1rem;
             box-sizing: border-box;
         }
 
         .wine-type-selector {
             display: flex;
-            justify-content: space-between;
-            gap: 5px;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
             text-align: center;
         }
 
@@ -290,21 +375,23 @@
             border: 2px solid transparent;
             transition: all 0.2s;
             user-select: none;
-            color: #ecf0f1;
+            color: var(--modal-text-color);
             font-weight: 500;
+            width: 65px; /* Give a consistent width */
+            box-sizing: border-box;
         }
 
         .wine-type-option canvas {
             display: block;
             border-radius: 50%;
-            background-color: #34495e; /* Match input fields for a cohesive look */
-            width: 60px;
-            height: 60px;
-            flex-shrink: 0; /* Prevent the canvas from being squished by flexbox */
+            background-color: var(--modal-input-bg);
+            width: 56px;
+            height: 56px;
+            flex-shrink: 0;
         }
 
         .wine-type-selector input[type="radio"]:checked + .wine-type-option {
-            border-color: #3498db;
+            border-color: var(--btn-primary-bg);
             background-color: transparent; /* Remove jarring square highlight */
         }
 
@@ -331,50 +418,154 @@
         .btn-primary:hover {
             background-color: #27ae60;
         }
+
+        #trek-my-indicator {
+            position: absolute;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            color: var(--text-color-subtle);
+            font-size: 14px;
+            font-weight: bold;
+            pointer-events: none; /* So it doesn't interfere with mouse/touch events */
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            z-index: 5;
+        }
+
+        #trek-my-indicator svg {
+            stroke: var(--text-color-subtle);
+        }
+
+        .instructions {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 8px;
+            font-size: 12px;
+            font-weight: normal;
+            color: var(--text-color-instruction);
+            line-height: 1.4;
+            text-align: center;
+        }
+
+        #results-container {
+            position: absolute;
+            top: 33%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--results-bg);
+            padding: 16px 24px;
+            border-radius: 12px;
+            border: 1px solid var(--results-border);
+            text-align: center;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            z-index: 5;
+            min-width: 250px;
+            max-width: 90%;
+            box-sizing: border-box;
+        }
+
+        #results-container .result-name {
+            color: var(--winner-name-color);
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        #winner-arrow-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 4; /* Below results, above other elements */
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        #winner-arrow-path {
+            stroke: var(--winner-arrow-color);
+            stroke-width: 3;
+            fill: none;
+        }
     </style>
 </head>
 <body>
     <div id="canvas-container">
+        <button id="burger-menu-btn" aria-label="Open settings">
+            <svg viewBox="0 0 100 80" width="24" height="24">
+                <rect width="100" height="15" rx="8"></rect>
+                <rect y="30" width="100" height="15" rx="8"></rect>
+                <rect y="60" width="100" height="15" rx="8"></rect>
+            </svg>
+        </button>
         <div class="controls-container">
-            <label for="bubbles-float-toggle">Bubbles float</label>
+            <label for="sparkling-float-toggle">Vonkelwyn dryf</label>
             <label class="toggle-switch">
-                <input type="checkbox" id="bubbles-float-toggle" checked>
+                <input type="checkbox" id="sparkling-float-toggle">
                 <span class="slider round"></span>
             </label>
-            <label for="ball-count-input">Balls:</label>
+            <label for="ball-count-input">Opsies:</label>
             <input type="number" id="ball-count-input" value="5" min="1" max="50" aria-label="Number of balls">
         </div>
         <canvas id="simulation-canvas"></canvas>
+        <svg id="winner-arrow-svg">
+            <path id="winner-arrow-path"></path>
+        </svg>
+        <div id="trek-my-indicator">
+            <span>Trek my</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 5V19M12 19L7 14M12 19L17 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div class="instructions">
+                <span>1: Sit jou gunsteling drankies op die lys links bo</span>
+                <span>2: Trek om te sien wat ons gaan oopmaak</span>
+            </div>
+        </div>
+        <div id="results-container">
+             <span class="result-name" id="winner-name"></span>
+        </div>
     </div>
 
-    <main class="wine-section">
-        <h2>Types of wine to randomize</h2>
-        <ul id="wine-list"></ul>
-        <button id="add-wine-btn" class="btn">+ Add wine</button>
-    </main>
+    <!-- Settings Screen -->
+    <div id="settings-screen" style="display: none;">
+        <button id="close-settings-btn" aria-label="Close settings">&times;</button>
+        <main class="wine-section">
+            <h2>My gunsteling drankies</h2>
+            <ul id="wine-list"></ul>
+            <button id="add-wine-btn" class="btn">+ Voeg drankie by</button>
+        </main>
+    </div>
+
 
     <!-- Modal -->
     <div id="add-wine-modal" class="modal-overlay" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="modal-title">
         <div class="modal-content" role="document">
             <form id="add-wine-form">
-                <h3 id="modal-title">Add a New Wine</h3>
+                <h3 id="modal-title">Voeg 'n Nuwe Drankie By</h3>
                 <div class="form-group">
-                    <label for="wine-name-input">Wine Name</label>
-                    <input type="text" id="wine-name-input" required placeholder="e.g., Pinot Noir">
+                    <label for="wine-name-input">Drankie Naam</label>
+                    <input type="text" id="wine-name-input" required placeholder="bv. Pinot Noir">
                 </div>
                 <div class="form-group">
-                    <p>Wine Type</p>
+                    <p>Tipe Drankie</p>
                     <div class="wine-type-selector">
                         <input type="radio" id="wine-type-red" name="wine-type" value="red" checked>
                         <label for="wine-type-red" class="wine-type-option" aria-label="Red Wine">
                             <canvas id="preview-canvas-red" width="60" height="60"></canvas>
-                            <span>Red</span>
+                            <span>Rooi</span>
                         </label>
                         
                         <input type="radio" id="wine-type-white" name="wine-type" value="white">
                         <label for="wine-type-white" class="wine-type-option" aria-label="White Wine">
                             <canvas id="preview-canvas-white" width="60" height="60"></canvas>
-                            <span>White</span>
+                            <span>Wit</span>
                         </label>
                         
                         <input type="radio" id="wine-type-rose" name="wine-type" value="rose">
@@ -383,858 +574,1224 @@
                             <span>Rosé</span>
                         </label>
                         
-                        <input type="radio" id="wine-type-bubbles" name="wine-type" value="bubbles">
-                        <label for="wine-type-bubbles" class="wine-type-option" aria-label="Sparkling Wine">
-                            <canvas id="preview-canvas-bubbles" width="60" height="60"></canvas>
-                            <span>Bubbles</span>
+                        <input type="radio" id="wine-type-sparkling" name="wine-type" value="sparkling">
+                        <label for="wine-type-sparkling" class="wine-type-option" aria-label="Sparkling Wine">
+                            <canvas id="preview-canvas-sparkling" width="60" height="60"></canvas>
+                            <span>Vonkelwyn</span>
+                        </label>
+
+                        <input type="radio" id="wine-type-dessert" name="wine-type" value="dessert">
+                        <label for="wine-type-dessert" class="wine-type-option" aria-label="Dessert Wine">
+                            <canvas id="preview-canvas-dessert" width="60" height="60"></canvas>
+                            <span>Soetwyn</span>
+                        </label>
+
+                        <input type="radio" id="wine-type-gin" name="wine-type" value="gin">
+                        <label for="wine-type-gin" class="wine-type-option" aria-label="Gin">
+                            <canvas id="preview-canvas-gin" width="60" height="60"></canvas>
+                            <span>Gin</span>
+                        </label>
+
+                        <input type="radio" id="wine-type-whisky" name="wine-type" value="whisky">
+                        <label for="wine-type-whisky" class="wine-type-option" aria-label="Whisky">
+                            <canvas id="preview-canvas-whisky" width="60" height="60"></canvas>
+                            <span>Whisky</span>
                         </label>
                     </div>
                 </div>
                 <div class="modal-actions">
-                    <button type="button" id="cancel-btn" class="btn btn-secondary">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add Wine</button>
+                    <button type="button" id="cancel-btn" class="btn btn-secondary">Kanselleer</button>
+                    <button type="submit" class="btn btn-primary">Voeg By</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script type="module">
-        /**
-         * @license
-         * SPDX-License-Identifier: Apache-2.0
-        */
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+*/
 
-        // --- Type Definitions ---
-        // Using 'any' for type definitions as this is a JS environment now
+// --- Type Definitions ---
+interface Vector {
+    x: number;
+    y: number;
+}
+
+interface IceCube {
+    position: Vector;
+    velocity: Vector;
+    angle: number;
+    angularVelocity: number;
+    size: number;
+}
+
+interface Bubble {
+    position: Vector;
+    velocity: Vector;
+    radius: number;
+}
+
+interface Ball {
+    position: Vector;
+    velocity: Vector;
+    radius: number;
+    mass: number;
+    color: string;
+    name?: string;
+    id?: number;
+    type?: string;
+    liquidAngle: number;
+    liquidAngularVelocity: number;
+    waveAmplitude: number;
+    waveFrequency: number;
+    wavePhase: number;
+    // For Gin type
+    lemonPosition?: Vector;
+    lemonVelocity?: Vector;
+    lemonAngle?: number;
+    lemonAngularVelocity?: number;
+    // For Whisky type
+    iceCubes?: IceCube[];
+    // For Sparkling type
+    bubbles?: Bubble[];
+}
+
+interface Wine {
+    name: string;
+    type: string;
+    color: string;
+}
+
+
+// --- Canvas and Context Setup ---
+const canvas = document.getElementById('simulation-canvas') as HTMLCanvasElement;
+const ctx = canvas.getContext('2d')!;
+
+// --- Simulation Constants and State ---
+const balls: Ball[] = [];
+let numBalls = 5;
+const gravity: Vector = { x: 0, y: 0.25 };
+const ballDamping = 0.85; // Energy retained on bounce for balls
+const substeps = 4; // Increase for more accuracy, decrease for performance
+const band = {
+    y: 0,
+    pullY: 0,
+    pullX: 0,
+    pullVelocity: 0,
+    isDragging: false,
+    stiffness: 0.1, // Spring stiffness for the band's snap-back motion
+    damping: 0.9,   // Damping for the band's snap-back motion
+    pullThreshold: 50
+};
+let sparklingFloat = false;
+
+// --- Result Display State ---
+let resultsVisible = false;
+let hasInteracted = false;
+const MOTION_THRESHOLD = 0.5; // Total system speed below which balls are considered "settled"
+
+
+// --- Wine List State ---
+const WINE_COLORS: { [key: string]: string } = {
+    red: '#c0392b',
+    white: '#f1c40f',
+    rose: '#e78f8f',
+    sparkling: '#81ecec',
+    dessert: '#e67e22',
+    gin: '#f0f8ff', // AliceBlue, used for list icon
+    whisky: '#A0522D', // Sienna
+};
+
+const WINE_LIST_LOCAL_STORAGE_KEY = 'bouncyWynAppWines';
+
+
+let wines: Wine[]; // Will be initialized by loading from storage
+
+
+// --- DOM Elements ---
+const ballCountInput = document.getElementById('ball-count-input') as HTMLInputElement;
+const addWineBtn = document.getElementById('add-wine-btn') as HTMLButtonElement;
+const wineList = document.getElementById('wine-list') as HTMLUListElement;
+const modal = document.getElementById('add-wine-modal') as HTMLDivElement;
+const cancelBtn = document.getElementById('cancel-btn') as HTMLButtonElement;
+const addWineForm = document.getElementById('add-wine-form') as HTMLFormElement;
+const wineNameInput = document.getElementById('wine-name-input') as HTMLInputElement;
+const sparklingFloatToggle = document.getElementById('sparkling-float-toggle') as HTMLInputElement;
+const burgerMenuBtn = document.getElementById('burger-menu-btn') as HTMLButtonElement;
+const settingsScreen = document.getElementById('settings-screen') as HTMLDivElement;
+const closeSettingsBtn = document.getElementById('close-settings-btn') as HTMLButtonElement;
+const trekMyIndicator = document.getElementById('trek-my-indicator') as HTMLDivElement;
+const resultsContainer = document.getElementById('results-container') as HTMLDivElement;
+const winnerName = document.getElementById('winner-name') as HTMLSpanElement;
+const winnerArrowSvg = document.getElementById('winner-arrow-svg') as unknown as SVGElement;
+// FIX: Cast to unknown first to correctly cast HTMLElement to SVGPathElement
+const winnerArrowPath = document.getElementById('winner-arrow-path') as unknown as SVGPathElement;
+
+
+// --- Modal Animation State ---
+let modalAnimationId: number | null = null;
+const previewCanvases: { [key: string]: { canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D; ball: Ball } } = {};
+
+
+// --- Local Storage Functions ---
+
+function saveWinesToLocalStorage() {
+    try {
+        localStorage.setItem(WINE_LIST_LOCAL_STORAGE_KEY, JSON.stringify(wines));
+    } catch (e) {
+        console.error("Failed to save wines to local storage:", e);
+    }
+}
+
+function loadWinesFromLocalStorage(): Wine[] {
+    const savedWines = localStorage.getItem(WINE_LIST_LOCAL_STORAGE_KEY);
+    if (savedWines) {
+        try {
+            const parsedWines = JSON.parse(savedWines);
+            if (Array.isArray(parsedWines) && parsedWines.every(w => 'name' in w && 'type' in w && 'color' in w)) {
+                return parsedWines;
+            }
+        } catch (e) {
+            console.error("Failed to parse wines from local storage:", e);
+        }
+    }
+    return [
+        { name: 'Badsberg Hanepoot Jerepigo', type: 'dessert', color: WINE_COLORS.dessert },
+        { name: 'Meerlust Cab Sav', type: 'red', color: WINE_COLORS.red },
+        { name: 'Merwida Pinotage', type: 'red', color: WINE_COLORS.red },
+        { name: 'Merwida Barbera', type: 'red', color: WINE_COLORS.red },
+        { name: 'Delheim Spatzendreck', type: 'dessert', color: WINE_COLORS.dessert },
+        { name: 'Blind Tiger gin', type: 'gin', color: WINE_COLORS.gin },
+        { name: 'Babylonstoren Sprankel', type: 'sparkling', color: WINE_COLORS.sparkling },
+        { name: 'De Kranz Moscato', type: 'sparkling', color: WINE_COLORS.sparkling },
+        { name: 'Cavalli Chardonnay', type: 'white', color: WINE_COLORS.white },
+        { name: 'Uva Mira Chardonnay', type: 'white', color: WINE_COLORS.white },
+        { name: 'Glenfiddich 12j', type: 'whisky', color: WINE_COLORS.whisky },
+    ];
+}
+
+
+// --- Core Functions ---
+
+/**
+ * Hides the results container and the winner arrow.
+ */
+function hideResults() {
+    if (resultsVisible) {
+        resultsContainer.style.opacity = '0';
+        winnerArrowSvg.style.opacity = '0';
+        resultsVisible = false;
+    }
+}
+
+
+/**
+ * Resizes the canvas to fill its container and reinitializes ball positions.
+ */
+function resizeCanvas() {
+    const container = canvas.parentElement!;
+    canvas.width = container.clientWidth;
+    canvas.height = container.clientHeight;
+    band.y = canvas.height * 2 / 3;
+    band.pullY = band.y;
+    initBalls();
+}
+
+/**
+ * Creates and initializes the set of balls. If wines are present, they are used as the source.
+ * Otherwise, it uses the numBalls count.
+ */
+function initBalls() {
+    balls.length = 0; // Clear existing balls
+    hasInteracted = false;
+    hideResults();
+
+    const ballCount = wines.length > 0 ? wines.length : numBalls;
+    if (ballCount <= 0) return;
+
+    const radius = Math.min(canvas.width, canvas.height) / 23;
+    const spacing = (canvas.width * 0.8) / (ballCount > 1 ? ballCount - 1 : 1);
+    const startX = ballCount > 1 ? canvas.width * 0.1 : canvas.width / 2;
+
+    for (let i = 0; i < ballCount; i++) {
+        const wine = wines.length > 0 ? wines[i] : null;
+        const newBall: Ball = {
+            position: {
+                x: startX + i * spacing,
+                y: band.y - radius - (Math.random() * 5)
+            },
+            velocity: { x: 0, y: 0 },
+            radius: radius,
+            mass: radius,
+            color: wine ? wine.color : '#FFFFFF',
+            name: wine ? wine.name : undefined,
+            id: wine ? i + 1 : undefined,
+            type: wine ? wine.type : undefined,
+            liquidAngle: 0,
+            liquidAngularVelocity: 0,
+            waveAmplitude: 0,
+            waveFrequency: Math.PI / radius,
+            wavePhase: Math.random() * Math.PI * 2,
+        };
+
+        if (wine?.type === 'gin') {
+            newBall.lemonPosition = { x: 0, y: 0 };
+            newBall.lemonVelocity = { x: (Math.random() - 0.5) * 0.5, y: 0 };
+            newBall.lemonAngle = Math.random() * Math.PI * 2;
+            newBall.lemonAngularVelocity = 0;
+        }
+
+        if (wine?.type === 'whisky') {
+            const iceSize = newBall.radius * 0.4;
+            newBall.iceCubes = [
+                {
+                    position: { x: -newBall.radius * 0.25, y: 0 },
+                    velocity: { x: (Math.random() - 0.5) * 0.2, y: 0 },
+                    angle: Math.random() * Math.PI,
+                    angularVelocity: 0,
+                    size: iceSize
+                },
+                {
+                    position: { x: newBall.radius * 0.25, y: -iceSize * 0.5 },
+                    velocity: { x: (Math.random() - 0.5) * 0.2, y: 0 },
+                    angle: Math.random() * Math.PI,
+                    angularVelocity: 0,
+                    size: iceSize
+                }
+            ];
+        }
         
-        // --- Canvas and Context Setup ---
-        const canvas = document.getElementById('simulation-canvas');
-        const ctx = canvas.getContext('2d');
-
-        // --- Simulation Constants and State ---
-        const balls = [];
-        let numBalls = 5;
-        const gravity = { x: 0, y: 0.25 };
-        const ballDamping = 0.85; // Energy retained on bounce for balls
-        const substeps = 4; // Increase for more accuracy, decrease for performance
-        const band = {
-            y: 0,
-            pullY: 0,
-            pullX: 0,
-            pullVelocity: 0,
-            isDragging: false,
-            stiffness: 0.1, // Spring stiffness for the band's snap-back motion
-            damping: 0.9,   // Damping for the band's snap-back motion
-            pullThreshold: 50
-        };
-        let bubblesFloat = true;
-
-        // --- Wine List State ---
-        const WINE_COLORS = {
-            red: '#c0392b',
-            white: '#f1c40f',
-            rose: '#e78f8f',
-            bubbles: '#81ecec',
-        };
-
-        let wines = [
-            { name: 'Cab Sav', type: 'red', color: WINE_COLORS.red },
-            { name: 'Cab Franc', type: 'red', color: WINE_COLORS.red },
-            { name: 'Chenin', type: 'white', color: WINE_COLORS.white },
-            { name: 'Chardonnay', type: 'white', color: WINE_COLORS.white },
-            { name: 'Sauvignon blanc', type: 'white', color: WINE_COLORS.white },
-            { name: 'Champaign', type: 'bubbles', color: WINE_COLORS.bubbles },
-            { name: 'Piere Jourdan Brut', type: 'bubbles', color: WINE_COLORS.bubbles },
-        ];
-
-
-        // --- DOM Elements ---
-        const ballCountInput = document.getElementById('ball-count-input');
-        const addWineBtn = document.getElementById('add-wine-btn');
-        const wineList = document.getElementById('wine-list');
-        const modal = document.getElementById('add-wine-modal');
-        const cancelBtn = document.getElementById('cancel-btn');
-        const addWineForm = document.getElementById('add-wine-form');
-        const wineNameInput = document.getElementById('wine-name-input');
-        const bubblesFloatToggle = document.getElementById('bubbles-float-toggle');
-
-        // --- Modal Animation State ---
-        let modalAnimationId = null;
-        const previewCanvases = {};
-
-
-        // --- Core Functions ---
-
-        /**
-         * Resizes the canvas to fill its container and reinitializes ball positions.
-         */
-        function resizeCanvas() {
-            const container = canvas.parentElement;
-            canvas.width = container.clientWidth;
-            canvas.height = container.clientHeight;
-            band.y = canvas.height * 2 / 3;
-            band.pullY = band.y;
-            initBalls();
-        }
-
-        /**
-         * Creates and initializes the set of balls. If wines are present, they are used as the source.
-         * Otherwise, it uses the numBalls count.
-         */
-        function initBalls() {
-            balls.length = 0; // Clear existing balls
-            const ballCount = wines.length > 0 ? wines.length : numBalls;
-            if (ballCount <= 0) return;
-
-            const radius = Math.min(canvas.width, canvas.height) / 25;
-            const spacing = (canvas.width * 0.8) / (ballCount > 1 ? ballCount - 1 : 1);
-            const startX = ballCount > 1 ? canvas.width * 0.1 : canvas.width / 2;
-
-            for (let i = 0; i < ballCount; i++) {
-                const wine = wines.length > 0 ? wines[i] : null;
-                balls.push({
+        if (wine?.type === 'sparkling') {
+            newBall.bubbles = [];
+            const numBubbles = Math.floor(newBall.radius * 0.8); // Scale bubbles with ball size
+            for (let j = 0; j < numBubbles; j++) {
+                newBall.bubbles.push({
                     position: {
-                        x: startX + i * spacing,
-                        y: band.y - radius - (Math.random() * 5)
+                        x: (Math.random() - 0.5) * newBall.radius * 1.8,
+                        y: (Math.random()) * newBall.radius
                     },
-                    velocity: { x: 0, y: 0 },
-                    radius: radius,
-                    mass: radius,
-                    color: wine ? wine.color : '#FFFFFF',
-                    name: wine ? wine.name : undefined,
-                    id: wine ? i + 1 : undefined,
-                    type: wine ? wine.type : undefined,
-                    liquidAngle: 0,
-                    liquidAngularVelocity: 0,
-                    waveAmplitude: 0,
-                    waveFrequency: Math.PI / radius,
-                    wavePhase: Math.random() * Math.PI * 2,
+                    velocity: {
+                        x: (Math.random() - 0.5) * 0.1,
+                        y: -(Math.random() * 0.5 + 0.2)
+                    },
+                    radius: Math.random() * 1.2 + 0.5,
                 });
             }
         }
 
 
-        // --- Physics and Geometry Helpers (unchanged) ---
-
-        /**
-         * Solves a quadratic equation ax^2+bx+c=0 for t in the range [0, 1].
-         */
-        function solveQuadraticForT(a, b, c) {
-            if (Math.abs(a) < 1e-6) { // Linear
-                return (Math.abs(b) > 1e-6 && -c / b >= 0 && -c / b <= 1) ? -c / b : -1;
-            }
-            const disc = b * b - 4 * a * c;
-            if (disc < 0) return -1;
-            const sqrtDisc = Math.sqrt(disc);
-            const t1 = (-b + sqrtDisc) / (2 * a);
-            const t2 = (-b - sqrtDisc) / (2 * a);
-            if (t1 >= 0 && t1 <= 1) return t1;
-            if (t2 >= 0 && t2 <= 1) return t2;
-            return -1;
-        }
-
-        /**
-         * Calculates the y-coordinate, upward-pointing normal vector, and curve parameter 't' of the band at a given x-coordinate.
-         */
-        function getBandGeometry(x) {
-            const p0x = 0, p1x = band.pullX, p2x = canvas.width;
-            const a = p0x - 2 * p1x + p2x;
-            const b = 2 * (p1x - p0x);
-            const c = p0x - x;
-            const t = solveQuadraticForT(a, b, c);
-
-            if (t === -1) return null;
-
-            const { y: baseY, pullY } = band;
-            const y = (1 - t) ** 2 * baseY + 2 * (1 - t) * t * pullY + t ** 2 * baseY;
-
-            const tx = 2 * (1 - t) * (band.pullX - 0) + 2 * t * (canvas.width - band.pullX);
-            const ty = 2 * (1 - t) * (pullY - baseY) + 2 * t * (baseY - pullY);
-
-            let normal = { x: -ty, y: tx };
-            const mag = Math.sqrt(normal.x ** 2 + normal.y ** 2);
-            if (mag > 0) {
-                normal.x /= mag;
-                normal.y /= mag;
-            }
-
-            if (normal.y > 0) {
-                normal.x *= -1;
-                normal.y *= -1;
-            }
-
-            return { y, normal, t };
-        }
+        balls.push(newBall);
+    }
+}
 
 
-        /**
-         * Applies physics forces and handles collisions for a single sub-step.
-         */
-        function applyPhysics(ball) {
-            // 1. APPLY FORCES
-            if (ball.type === 'bubbles' && bubblesFloat) {
-                // Zero gravity: apply gentle friction so they eventually stop.
-                ball.velocity.x *= 0.995;
-                ball.velocity.y *= 0.995;
-            } else {
-                // Normal gravity for all other balls (and bubbles when toggle is off)
-                ball.velocity.y += gravity.y / substeps;
-                ball.velocity.x *= 0.999; // Air resistance
-                ball.velocity.y *= 0.999;
-            }
+// --- Physics and Geometry Helpers (unchanged) ---
 
-            // 2. UPDATE POSITION
-            ball.position.x += ball.velocity.x / substeps;
-            ball.position.y += ball.velocity.y / substeps;
+/**
+ * Solves a quadratic equation ax^2+bx+c=0 for t in the range [0, 1].
+ */
+function solveQuadraticForT(a: number, b: number, c: number): number {
+    if (Math.abs(a) < 1e-6) { // Linear
+        return (Math.abs(b) > 1e-6 && -c / b >= 0 && -c / b <= 1) ? -c / b : -1;
+    }
+    const disc = b * b - 4 * a * c;
+    if (disc < 0) return -1;
+    const sqrtDisc = Math.sqrt(disc);
+    const t1 = (-b + sqrtDisc) / (2 * a);
+    const t2 = (-b - sqrtDisc) / (2 * a);
+    if (t1 >= 0 && t1 <= 1) return t1;
+    if (t2 >= 0 && t2 <= 1) return t2;
+    return -1;
+}
 
-            // 3. RESOLVE COLLISIONS
-            // Wall collisions
-            if (ball.position.x + ball.radius > canvas.width || ball.position.x - ball.radius < 0) {
-                const impulse = Math.abs(ball.velocity.x) * (1 + ballDamping);
-                if (ball.type !== 'bubbles') {
-                    ball.waveAmplitude = Math.min(ball.waveAmplitude + impulse * 0.1, ball.radius * 0.8);
+/**
+ * Calculates the y-coordinate, upward-pointing normal vector, and curve parameter 't' of the band at a given x-coordinate.
+ */
+function getBandGeometry(x: number): { y: number, normal: Vector, t: number } | null {
+    const p0x = 0, p1x = band.pullX, p2x = canvas.width;
+    const a = p0x - 2 * p1x + p2x;
+    const b = 2 * (p1x - p0x);
+    const c = p0x - x;
+    const t = solveQuadraticForT(a, b, c);
+
+    if (t === -1) return null;
+
+    const { y: baseY, pullY } = band;
+    const y = (1 - t) ** 2 * baseY + 2 * (1 - t) * t * pullY + t ** 2 * baseY;
+
+    const tx = 2 * (1 - t) * (band.pullX - 0) + 2 * t * (canvas.width - band.pullX);
+    const ty = 2 * (1 - t) * (pullY - baseY) + 2 * t * (baseY - pullY);
+
+    let normal = { x: -ty, y: tx };
+    const mag = Math.sqrt(normal.x ** 2 + normal.y ** 2);
+    if (mag > 0) {
+        normal.x /= mag;
+        normal.y /= mag;
+    }
+
+    if (normal.y > 0) {
+        normal.x *= -1;
+        normal.y *= -1;
+    }
+
+    return { y, normal, t };
+}
+
+
+/**
+ * Applies physics forces and handles collisions for a single sub-step.
+ */
+function applyPhysics(ball: Ball) {
+    // 1. APPLY FORCES
+    if (ball.type === 'sparkling' && sparklingFloat) {
+        // Moon gravity
+        ball.velocity.y += (gravity.y / 6) / substeps;
+        ball.velocity.x *= 0.999;
+        ball.velocity.y *= 0.999;
+    } else {
+        // Normal gravity for all other balls (and sparkling when toggle is off)
+        ball.velocity.y += gravity.y / substeps;
+        ball.velocity.x *= 0.999; // Air resistance
+        ball.velocity.y *= 0.999;
+    }
+
+    // 2. UPDATE POSITION
+    ball.position.x += ball.velocity.x / substeps;
+    ball.position.y += ball.velocity.y / substeps;
+
+    // 3. RESOLVE COLLISIONS
+    // Wall collisions
+    if (ball.position.x + ball.radius > canvas.width || ball.position.x - ball.radius < 0) {
+        const impulse = Math.abs(ball.velocity.x) * (1 + ballDamping);
+        ball.waveAmplitude = Math.min(ball.waveAmplitude + impulse * 0.1, ball.radius * 0.8);
+        ball.position.x = ball.position.x < ball.radius ? ball.radius : canvas.width - ball.radius;
+        ball.velocity.x *= -ballDamping;
+    }
+    // Top wall
+    if (ball.position.y - ball.radius < 0) {
+        const impulse = Math.abs(ball.velocity.y) * (1 + ballDamping);
+        ball.waveAmplitude = Math.min(ball.waveAmplitude + impulse * 0.1, ball.radius * 0.8);
+        ball.position.y = ball.radius;
+        ball.velocity.y *= -ballDamping;
+    }
+    // Bottom wall
+    if (ball.position.y + ball.radius > canvas.height) {
+        const impulse = Math.abs(ball.velocity.y) * (1 + ballDamping);
+        ball.waveAmplitude = Math.min(ball.waveAmplitude + impulse * 0.1, ball.radius * 0.8);
+        ball.position.y = canvas.height - ball.radius;
+        ball.velocity.y *= -ballDamping;
+    }
+
+
+    // Band collision
+    const isBandStretched = Math.abs(band.pullY - band.y) > 1;
+
+    if (isBandStretched) {
+        const bandGeom = getBandGeometry(ball.position.x);
+        if (bandGeom) {
+            const { y: bandY, normal, t } = bandGeom;
+            const overlap = (ball.position.y + ball.radius) - bandY;
+            if (overlap > 0) {
+                // Position correction
+                ball.position.x += normal.x * overlap;
+                ball.position.y += normal.y * overlap;
+
+                // Impulse-based velocity correction
+                const bandVy = 2 * (1 - t) * t * band.pullVelocity;
+                const bandVx = 0;
+                const relativeVx = ball.velocity.x - bandVx;
+                const relativeVy = ball.velocity.y - bandVy;
+                const relativeSpeedNormal = relativeVx * normal.x + relativeVy * normal.y;
+
+                if (relativeSpeedNormal < 0) {
+                    const impulseMagnitude = -(1 + ballDamping) * relativeSpeedNormal;
+                    ball.waveAmplitude = Math.min(ball.waveAmplitude + impulseMagnitude * 0.5, ball.radius * 0.8);
+                    ball.velocity.x += normal.x * impulseMagnitude;
+                    ball.velocity.y += normal.y * impulseMagnitude;
                 }
-                ball.position.x = ball.position.x < ball.radius ? ball.radius : canvas.width - ball.radius;
-                ball.velocity.x *= -ballDamping;
-            }
-            // Top wall
-            if (ball.position.y - ball.radius < 0) {
-                const impulse = Math.abs(ball.velocity.y) * (1 + ballDamping);
-                if (ball.type !== 'bubbles') {
-                    ball.waveAmplitude = Math.min(ball.waveAmplitude + impulse * 0.1, ball.radius * 0.8);
-                }
-                ball.position.y = ball.radius;
-                ball.velocity.y *= -ballDamping;
-            }
-            // Bottom wall
-            if (ball.position.y + ball.radius > canvas.height) {
-                const impulse = Math.abs(ball.velocity.y) * (1 + ballDamping);
-                if (ball.type !== 'bubbles') {
-                    ball.waveAmplitude = Math.min(ball.waveAmplitude + impulse * 0.1, ball.radius * 0.8);
-                }
-                ball.position.y = canvas.height - ball.radius;
-                ball.velocity.y *= -ballDamping;
-            }
-
-
-            // Band collision
-            const isBandStretched = Math.abs(band.pullY - band.y) > 1;
-
-            if (isBandStretched) {
-                const bandGeom = getBandGeometry(ball.position.x);
-                if (bandGeom) {
-                    const { y: bandY, normal, t } = bandGeom;
-                    const overlap = (ball.position.y + ball.radius) - bandY;
-                    if (overlap > 0) {
-                        // Position correction
-                        ball.position.x += normal.x * overlap;
-                        ball.position.y += normal.y * overlap;
-
-                        // Impulse-based velocity correction
-                        const bandVy = 2 * (1 - t) * t * band.pullVelocity;
-                        const bandVx = 0;
-                        const relativeVx = ball.velocity.x - bandVx;
-                        const relativeVy = ball.velocity.y - bandVy;
-                        const relativeSpeedNormal = relativeVx * normal.x + relativeVy * normal.y;
-
-                        if (relativeSpeedNormal < 0) {
-                            const impulseMagnitude = -(1 + ballDamping) * relativeSpeedNormal;
-                            if (ball.type !== 'bubbles') {
-                                ball.waveAmplitude = Math.min(ball.waveAmplitude + impulseMagnitude * 0.5, ball.radius * 0.8);
-                            }
-                            ball.velocity.x += normal.x * impulseMagnitude;
-                            ball.velocity.y += normal.y * impulseMagnitude;
-                        }
-                        ball.velocity.x *= 0.98; // Rolling friction
-                    }
-                }
-            } else {
-                // Flat band collision
-                if (ball.position.y + ball.radius >= band.y && ball.velocity.y > 0) {
-                    const impulse = Math.abs(ball.velocity.y) * (1 + ballDamping);
-                    if (ball.type !== 'bubbles') {
-                        ball.waveAmplitude = Math.min(ball.waveAmplitude + impulse * 0.1, ball.radius * 0.8);
-                    }
-                    const overlap = (ball.position.y + ball.radius) - band.y;
-                    ball.position.y -= overlap;
-                    ball.velocity.y *= -ballDamping;
-                    ball.velocity.x *= 0.98; // Friction
-                }
+                ball.velocity.x *= 0.98; // Rolling friction
             }
         }
+    } else {
+        // Flat band collision
+        if (ball.position.y + ball.radius >= band.y && ball.velocity.y > 0) {
+            const impulse = Math.abs(ball.velocity.y) * (1 + ballDamping);
+            ball.waveAmplitude = Math.min(ball.waveAmplitude + impulse * 0.1, ball.radius * 0.8);
+            const overlap = (ball.position.y + ball.radius) - band.y;
+            ball.position.y -= overlap;
+            ball.velocity.y *= -ballDamping;
+            ball.velocity.x *= 0.98; // Friction
+        }
+    }
+}
 
 
-        /**
-         * Handles elastic collisions between all pairs of balls.
-         */
-        function handleCollisions() {
-            for (let i = 0; i < balls.length; i++) {
-                for (let j = i + 1; j < balls.length; j++) {
-                    const ballA = balls[i];
-                    const ballB = balls[j];
-                    const dx = ballB.position.x - ballA.position.x;
-                    const dy = ballB.position.y - ballA.position.y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-                    const minDistance = ballA.radius + ballB.radius;
+/**
+ * Handles elastic collisions between all pairs of balls.
+ */
+function handleCollisions() {
+    for (let i = 0; i < balls.length; i++) {
+        for (let j = i + 1; j < balls.length; j++) {
+            const ballA = balls[i];
+            const ballB = balls[j];
+            const dx = ballB.position.x - ballA.position.x;
+            const dy = ballB.position.y - ballA.position.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const minDistance = ballA.radius + ballB.radius;
 
-                    if (distance < minDistance) {
-                        const overlap = (minDistance - distance) / 2;
-                        const nx = dx / distance;
-                        const ny = dy / distance;
-                        ballA.position.x -= overlap * nx;
-                        ballA.position.y -= overlap * ny;
-                        ballB.position.x += overlap * nx;
-                        ballB.position.y += overlap * ny;
+            if (distance < minDistance) {
+                const overlap = (minDistance - distance) / 2;
+                const nx = dx / distance;
+                const ny = dy / distance;
+                ballA.position.x -= overlap * nx;
+                ballA.position.y -= overlap * ny;
+                ballB.position.x += overlap * nx;
+                ballB.position.y += overlap * ny;
 
-                        const kx = ballA.velocity.x - ballB.velocity.x;
-                        const ky = ballA.velocity.y - ballB.velocity.y;
-                        const p = 2 * (nx * kx + ny * ky) / (ballA.mass + ballB.mass);
-                        
-                        const impulseMagA = Math.abs(p * ballB.mass);
-                        const impulseMagB = Math.abs(p * ballA.mass);
+                const kx = ballA.velocity.x - ballB.velocity.x;
+                const ky = ballA.velocity.y - ballB.velocity.y;
+                const p = 2 * (nx * kx + ny * ky) / (ballA.mass + ballB.mass);
+                
+                const impulseMagA = Math.abs(p * ballB.mass);
+                const impulseMagB = Math.abs(p * ballA.mass);
 
-                        if (ballA.type !== 'bubbles') {
-                            ballA.waveAmplitude = Math.min(ballA.waveAmplitude + impulseMagA * 0.2, ballA.radius * 0.8);
-                        }
-                        if (ballB.type !== 'bubbles') {
-                            ballB.waveAmplitude = Math.min(ballB.waveAmplitude + impulseMagB * 0.2, ballB.radius * 0.8);
-                        }
+                ballA.waveAmplitude = Math.min(ballA.waveAmplitude + impulseMagA * 0.2, ballA.radius * 0.8);
+                ballB.waveAmplitude = Math.min(ballB.waveAmplitude + impulseMagB * 0.2, ballB.radius * 0.8);
 
-                        ballA.velocity.x -= p * ballB.mass * nx;
-                        ballA.velocity.y -= p * ballB.mass * ny;
-                        ballB.velocity.x += p * ballA.mass * nx;
-                        ballB.velocity.y += p * ballA.mass * ny;
-                    }
-                }
+                ballA.velocity.x -= p * ballB.mass * nx;
+                ballA.velocity.y -= p * ballB.mass * ny;
+                ballB.velocity.x += p * ballA.mass * nx;
+                ballB.velocity.y += p * ballA.mass * ny;
             }
         }
+    }
+}
 
 
-        // --- Drawing ---
+// --- Drawing ---
 
-        /**
-         * Renders a ball onto a given canvas context. Used for modal previews.
-         */
-        function drawBallOnContext(context, ball) {
+/**
+ * Lightens a hex color by a given percentage.
+ */
+function lightenColor(hex: string, percent: number): string {
+    hex = hex.replace(/^\s*#|\s*$/g, '');
+    if (hex.length === 3) {
+        hex = hex.replace(/(.)/g, '$1$1');
+    }
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+
+    return '#' +
+        ((0 | (1 << 8) + r + (256 - r) * percent / 100).toString(16)).substring(1) +
+        ((0 | (1 << 8) + g + (256 - g) * percent / 100).toString(16)).substring(1) +
+        ((0 | (1 << 8) + b + (256 - b) * percent / 100).toString(16)).substring(1);
+}
+
+/**
+ * The core drawing function for a ball, used by the main canvas and previews.
+ */
+function _drawBallCore(context: CanvasRenderingContext2D, ball: Ball, isPreview: boolean = false) {
+    context.save();
+    context.translate(ball.position.x, ball.position.y);
+
+    // --- Part 1: Draw Contents (Liquid, Bubbles, etc.) ---
+    context.save();
+    context.beginPath();
+    context.arc(0, 0, ball.radius, 0, Math.PI * 2);
+    context.clip();
+
+    // Draw inside rotated context
+    context.save();
+    context.rotate(ball.liquidAngle);
+
+    // A: Draw the liquid body
+    const liquidColor = (ball.type === 'gin') ? 'rgba(240, 248, 255, 0.5)'
+                      : (ball.type === 'sparkling') ? 'rgba(220, 235, 255, 0.15)' // Clear liquid for sparkling
+                      : ball.color;
+    context.fillStyle = liquidColor;
+    context.beginPath();
+    const steps = 30;
+    const stepSize = (ball.radius * 2) / steps;
+    context.moveTo(-ball.radius, ball.radius);
+    for (let i = 0; i <= steps; i++) {
+        const x = -ball.radius + i * stepSize;
+        const y = Math.sin(x * ball.waveFrequency + ball.wavePhase) * ball.waveAmplitude;
+        context.lineTo(x, y);
+    }
+    context.lineTo(ball.radius, ball.radius);
+    context.closePath();
+    context.fill();
+    
+    // B: Draw Sparkling's bubbles
+    if (ball.type === 'sparkling' && ball.bubbles) {
+        context.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        ball.bubbles.forEach(bubble => {
+            context.beginPath();
+            context.arc(bubble.position.x, bubble.position.y, bubble.radius, 0, Math.PI * 2);
+            context.fill();
+        });
+    }
+
+    // C: Draw Whisky's ice cubes
+    if (ball.type === 'whisky' && ball.iceCubes) {
+        context.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        context.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+        context.lineWidth = isPreview ? 1 : 2;
+        ball.iceCubes.forEach(cube => {
             context.save();
-            context.translate(ball.position.x, ball.position.y);
+            context.translate(cube.position.x, cube.position.y);
+            context.rotate(cube.angle);
+            context.beginPath();
+            context.rect(-cube.size / 2, -cube.size / 2, cube.size, cube.size);
+            context.fill();
+            context.stroke();
+            context.restore();
+        });
+    }
 
-            if (ball.type === 'bubbles') {
-                // --- Draw Empty Shiny Glass Ball ---
-                context.beginPath();
-                context.arc(0, 0, ball.radius, 0, Math.PI * 2);
+    // D: Draw Gin's lemon wedge
+    if (ball.type === 'gin' && ball.lemonPosition) {
+        context.save();
+        context.translate(ball.lemonPosition.x, ball.lemonPosition.y);
+        context.rotate(ball.lemonAngle || 0);
+        const lemonSize = ball.radius * 0.6; // Increased size
+        context.fillStyle = '#f1c40f'; // Lemon color
+        context.strokeStyle = '#f39c12'; // Rind color
+        context.lineWidth = isPreview ? 1 : 2;
+        context.beginPath();
+        context.moveTo(0,0);
+        context.arc(0, 0, lemonSize, Math.PI * 0.25, Math.PI * 0.75, false);
+        context.closePath();
+        context.fill();
+        context.stroke();
+        context.restore();
+    }
 
-                const gradient = context.createRadialGradient(
-                    -ball.radius * 0.3, -ball.radius * 0.4, ball.radius * 0.1,
-                    0, 0, ball.radius
-                );
-                gradient.addColorStop(0, 'rgba(255, 255, 255, 0.7)');
-                gradient.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
-                context.fillStyle = gradient;
-                context.fill();
+    // E: Draw liquid surface highlight
+    context.beginPath();
+    for (let i = 0; i <= steps; i++) {
+        const x = -ball.radius + i * stepSize;
+        const y = Math.sin(x * ball.waveFrequency + ball.wavePhase) * ball.waveAmplitude;
+        if (i === 0) context.moveTo(x, y);
+        else context.lineTo(x, y);
+    }
+    const highlightColor = ball.type === 'gin' ? '#DDD' : (ball.type === 'sparkling' ? '#FFFFFF' : ball.color);
+    context.strokeStyle = lightenColor(highlightColor, 30);
+    context.lineWidth = isPreview ? 2 : 3;
+    context.stroke();
+    
+    context.restore(); // Un-rotate
+    context.restore(); // Un-clip
 
-                context.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-                context.lineWidth = 2;
-                context.stroke();
+    // --- Part 2: Draw Glass Effects (for ALL balls) ---
+    // A: Glass glare/shine
+    const gradient = context.createRadialGradient(
+        -ball.radius * 0.3, -ball.radius * 0.4, ball.radius * 0.1,
+        0, 0, ball.radius
+    );
+    gradient.addColorStop(0, 'rgba(255, 255, 255, 0.7)');
+    gradient.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
+    context.fillStyle = gradient;
+    context.beginPath();
+    context.arc(0, 0, ball.radius, 0, Math.PI * 2);
+    context.fill();
 
-            } else {
-                // --- Draw Liquid-filled Glass Ball ---
-                // 1. Clip to the ball's shape
-                context.beginPath();
-                context.arc(0, 0, ball.radius, 0, Math.PI * 2);
-                context.clip();
-
-                // 2. Draw the liquid
-                context.save();
-                context.rotate(ball.liquidAngle); // Apply overall tilt
-                
-                context.fillStyle = ball.color;
-                context.beginPath();
-                
-                const steps = 30;
-                const stepSize = (ball.radius * 2) / steps;
-                
-                context.moveTo(-ball.radius, ball.radius); // Start fill from bottom-left
-                for (let i = 0; i <= steps; i++) {
-                    const x = -ball.radius + i * stepSize;
-                    const y = Math.sin(x * ball.waveFrequency + ball.wavePhase) * ball.waveAmplitude;
-                    context.lineTo(x, y);
-                }
-                context.lineTo(ball.radius, ball.radius); // Close fill at bottom-right
-                context.closePath();
-                context.fill();
-
-                // 3. Draw liquid surface highlight
-                context.beginPath();
-                for (let i = 0; i <= steps; i++) {
-                    const x = -ball.radius + i * stepSize;
-                    const y = Math.sin(x * ball.waveFrequency + ball.wavePhase) * ball.waveAmplitude;
-                    if (i === 0) context.moveTo(x, y);
-                    else context.lineTo(x, y);
-                }
-                context.strokeStyle = lightenColor(ball.color, 30);
-                context.lineWidth = 3;
-                context.stroke();
-                
-                context.restore(); // Restore from rotation
-
-                // 4. Draw the glass glare over the liquid
-                const gradient = context.createRadialGradient(
-                    -ball.radius * 0.3, -ball.radius * 0.4, ball.radius * 0.1,
-                    0, 0, ball.radius
-                );
-                gradient.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
-                gradient.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
-                context.fillStyle = gradient;
-                context.fill();
-
-                // 5. Draw the glass outline
-                context.beginPath();
-                context.arc(0, 0, ball.radius, 0, Math.PI * 2);
-                context.strokeStyle = 'rgba(255, 255, 255, 0.2)';
-                context.lineWidth = 2;
-                context.stroke();
-            }
-
-            context.restore(); // Restore from translation
-        }
+    // B: Glass outline
+    context.beginPath();
+    context.arc(0, 0, ball.radius, 0, Math.PI * 2);
+    context.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+    context.lineWidth = isPreview ? 1.5 : 2;
+    context.stroke();
+    
+    context.restore(); // Un-translate
+}
 
 
-        /**
-         * Lightens a hex color by a given percentage.
-         */
-        function lightenColor(hex, percent) {
-            hex = hex.replace(/^\s*#|\s*$/g, '');
-            if (hex.length === 3) {
-                hex = hex.replace(/(.)/g, '$1$1');
-            }
-            const r = parseInt(hex.substring(0, 2), 16);
-            const g = parseInt(hex.substring(2, 4), 16);
-            const b = parseInt(hex.substring(4, 6), 16);
-
-            return '#' +
-                ((0 | (1 << 8) + r + (256 - r) * percent / 100).toString(16)).substring(1) +
-                ((0 | (1 << 8) + g + (256 - g) * percent / 100).toString(16)).substring(1) +
-                ((0 | (1 << 8) + b + (256 - b) * percent / 100).toString(16)).substring(1);
-        }
-
-        /**
-         * Renders a single ball with its special effects.
-         */
-        function drawBall(ball) {
-            ctx.save();
-            ctx.translate(ball.position.x, ball.position.y);
-
-            if (ball.type === 'bubbles') {
-                // --- Draw Empty Shiny Glass Ball ---
-                ctx.beginPath();
-                ctx.arc(0, 0, ball.radius, 0, Math.PI * 2);
-
-                const gradient = ctx.createRadialGradient(
-                    -ball.radius * 0.3, -ball.radius * 0.4, ball.radius * 0.1,
-                    0, 0, ball.radius
-                );
-                gradient.addColorStop(0, 'rgba(255, 255, 255, 0.7)');
-                gradient.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
-                ctx.fillStyle = gradient;
-                ctx.fill();
-
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-                ctx.lineWidth = 2;
-                ctx.stroke();
-
-            } else {
-                // --- Draw Liquid-filled Glass Ball ---
-                // 1. Clip to the ball's shape
-                ctx.beginPath();
-                ctx.arc(0, 0, ball.radius, 0, Math.PI * 2);
-                ctx.clip();
-
-                // 2. Draw the liquid
-                ctx.save();
-                ctx.rotate(ball.liquidAngle); // Apply overall tilt
-                
-                ctx.fillStyle = ball.color;
-                ctx.beginPath();
-                
-                const steps = 30;
-                const stepSize = (ball.radius * 2) / steps;
-                
-                ctx.moveTo(-ball.radius, ball.radius); // Start fill from bottom-left
-                for (let i = 0; i <= steps; i++) {
-                    const x = -ball.radius + i * stepSize;
-                    const y = Math.sin(x * ball.waveFrequency + ball.wavePhase) * ball.waveAmplitude;
-                    ctx.lineTo(x, y);
-                }
-                ctx.lineTo(ball.radius, ball.radius); // Close fill at bottom-right
-                ctx.closePath();
-                ctx.fill();
-
-                // 3. Draw liquid surface highlight
-                ctx.beginPath();
-                for (let i = 0; i <= steps; i++) {
-                    const x = -ball.radius + i * stepSize;
-                    const y = Math.sin(x * ball.waveFrequency + ball.wavePhase) * ball.waveAmplitude;
-                    if (i === 0) ctx.moveTo(x, y);
-                    else ctx.lineTo(x, y);
-                }
-                ctx.strokeStyle = lightenColor(ball.color, 30);
-                ctx.lineWidth = 3;
-                ctx.stroke();
-                
-                ctx.restore(); // Restore from rotation
-
-                // 4. Draw the glass glare over the liquid
-                const gradient = ctx.createRadialGradient(
-                    -ball.radius * 0.3, -ball.radius * 0.4, ball.radius * 0.1,
-                    0, 0, ball.radius
-                );
-                gradient.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
-                gradient.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
-                ctx.fillStyle = gradient;
-                ctx.fill();
-
-                // 5. Draw the glass outline
-                ctx.beginPath();
-                ctx.arc(0, 0, ball.radius, 0, Math.PI * 2);
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
-                ctx.lineWidth = 2;
-                ctx.stroke();
-            }
-
-            ctx.restore(); // Restore from translation
-
-            // --- Draw the number on top of everything ---
-            if (ball.id) {
-                ctx.fillStyle = '#FFFFFF';
-                ctx.font = `bold ${ball.radius * 0.8}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                // Add a shadow for readability
-                ctx.shadowColor = 'rgba(0,0,0,0.7)';
-                ctx.shadowBlur = 5;
-                ctx.fillText(ball.id.toString(), ball.position.x, ball.position.y);
-                ctx.shadowColor = 'transparent';
-                ctx.shadowBlur = 0;
-            }
-        }
+/**
+ * Renders a ball onto a given canvas context for modal previews.
+ */
+function drawBallOnContext(context: CanvasRenderingContext2D, ball: Ball) {
+    _drawBallCore(context, ball, true);
+}
 
 
-        /**
-         * Renders the entire scene.
-         */
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+/**
+ * Renders a single ball with its special effects and number ID.
+ */
+function drawBall(ball: Ball) {
+    _drawBallCore(ctx, ball);
 
-            ctx.strokeStyle = '#FFFFFF';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            if (Math.abs(band.pullY - band.y) > 1) {
-                ctx.moveTo(0, band.y);
-                ctx.quadraticCurveTo(band.pullX, band.pullY, canvas.width, band.y);
-            } else {
-                ctx.moveTo(0, band.y);
-                ctx.lineTo(canvas.width, band.y);
-            }
-            ctx.stroke();
-
-            balls.forEach(drawBall);
-        }
-
-        /**
-         * Updates the band's spring physics when not being dragged.
-         */
-        function updateBand() {
-            if (band.isDragging) return;
-
-            const displacement = band.pullY - band.y;
-            if (Math.abs(displacement) < 0.5 && Math.abs(band.pullVelocity) < 0.5) {
-                band.pullY = band.y;
-                band.pullVelocity = 0;
-                return;
-            }
-
-            const springForce = -band.stiffness * displacement;
-            band.pullVelocity += springForce;
-            band.pullVelocity *= band.damping; // Apply damping
-            band.pullY += band.pullVelocity;
-        }
-
-        /**
-         * The main simulation loop.
-         */
-        function loop() {
-            updateBand();
-
-            // Liquid physics for balls
-            balls.forEach(ball => {
-                if (ball.type !== 'bubbles') {
-                    const speed = Math.sqrt(ball.velocity.x ** 2 + ball.velocity.y ** 2);
-                    // Consider resting if speed is low and it's near the flat band or canvas bottom
-                    const isNearBottom = ball.position.y + ball.radius > canvas.height - 1;
-                    const isNearBand = Math.abs(band.pullY - band.y) < 1 && Math.abs(ball.position.y + ball.radius - band.y) < 1;
-                    const isResting = speed < 0.1 && (isNearBand || isNearBottom);
-
-                    let tiltDamping = 0.95;
-                    let waveDamping = 0.98;
-                    let targetAngle = -ball.velocity.x * 0.05;
-
-                    // If resting, apply much stronger damping and target a flat surface
-                    if (isResting) {
-                        tiltDamping = 0.85;
-                        waveDamping = 0.9;
-                        targetAngle = 0; // Target a flat, non-tilted surface
-                    }
-
-                    // Overall tilt physics
-                    const angleDifference = targetAngle - ball.liquidAngle;
-                    const springForce = angleDifference * 0.01;
-                    ball.liquidAngularVelocity += springForce;
-                    ball.liquidAngularVelocity *= tiltDamping; // Apply dynamic damping
-                    ball.liquidAngle += ball.liquidAngularVelocity;
-
-                    // Wave animation
-                    ball.wavePhase += 0.2;
-                    ball.waveAmplitude *= waveDamping; // Apply dynamic damping
-
-                    // Snap to zero when very close to prevent micro-jitters, especially when resting
-                    if (isResting) {
-                        if (Math.abs(ball.liquidAngle) < 0.001 && Math.abs(ball.liquidAngularVelocity) < 0.001) {
-                            ball.liquidAngle = 0;
-                            ball.liquidAngularVelocity = 0;
-                        }
-                        if (ball.waveAmplitude < 0.05) {
-                            ball.waveAmplitude = 0;
-                        }
-                    } else {
-                         if (ball.waveAmplitude < 0.1) {
-                            ball.waveAmplitude = 0;
-                        }
-                    }
-                }
-            });
-
-            for (let i = 0; i < substeps; i++) {
-                balls.forEach(applyPhysics);
-                handleCollisions();
-            }
-            draw();
-            requestAnimationFrame(loop);
-        }
-
-        // --- Event Handlers (unchanged) ---
-
-        function getEventCoords(e) {
-            if ('touches' in e) {
-                e.preventDefault();
-                return { x: e.touches[0].clientX, y: e.touches[0].clientY };
-            }
-            return { x: e.clientX, y: e.clientY };
-        }
-
-        function handleStart(e) {
-            const coords = getEventCoords(e);
-            const isBandPulled = band.pullY > band.y;
-            if (Math.abs(coords.y - band.y) < band.pullThreshold || (isBandPulled && coords.y > band.y)) {
-                band.isDragging = true;
-                band.pullVelocity = 0;
-                band.pullX = coords.x;
-                band.pullY = Math.max(coords.y, band.y);
-            }
-        }
-
-        function handleMove(e) {
-            if (!band.isDragging) return;
-            const coords = getEventCoords(e);
-            band.pullX = coords.x;
-            band.pullY = Math.max(coords.y, band.y);
-        }
-
-        function handleEnd() {
-            if (!band.isDragging) return;
-            band.isDragging = false;
-        }
+    // --- Draw the number on top of everything ---
+    if (ball.id) {
+        const textColor = getComputedStyle(document.body).getPropertyValue('--bg-color');
+        const shadowColor = getComputedStyle(document.body).getPropertyValue('--text-color');
+        ctx.fillStyle = textColor;
+        ctx.font = `bold ${ball.radius * 0.8}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        // Add a shadow for readability
+        ctx.shadowColor = shadowColor;
+        ctx.shadowBlur = 5;
+        ctx.fillText(ball.id.toString(), ball.position.x, ball.position.y);
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
+    }
+}
 
 
-        // --- Wine List and Modal Logic ---
+/**
+ * Renders the entire scene.
+ */
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        /**
-         * The animation loop for the preview canvases in the modal.
-         */
-        function modalLoop() {
-            Object.keys(previewCanvases).forEach(key => {
-                const data = previewCanvases[key];
-                const { canvas, ctx, ball } = data;
-                
-                if (ball.type !== 'bubbles') {
-                    ball.wavePhase += 0.05; // Gentle wave motion
-                }
-                
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                drawBallOnContext(ctx, ball);
-            });
-            modalAnimationId = requestAnimationFrame(modalLoop);
-        }
+    ctx.strokeStyle = getComputedStyle(canvas).getPropertyValue('--rubber-band-color');
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    if (Math.abs(band.pullY - band.y) > 1) {
+        ctx.moveTo(0, band.y);
+        ctx.quadraticCurveTo(band.pullX, band.pullY, canvas.width, band.y);
+    } else {
+        ctx.moveTo(0, band.y);
+        ctx.lineTo(canvas.width, band.y);
+    }
+    ctx.stroke();
 
-        /**
-         * Initializes and starts the animation for the modal previews.
-         */
-        function startModalAnimation() {
-            if (modalAnimationId) return; // Already running
+    balls.forEach(drawBall);
 
-            const types = ['red', 'white', 'rose', 'bubbles'];
-            const radius = 28; // Radius for the preview balls
+    // Update "Trek my" indicator
+    const isBandStatic = !band.isDragging && Math.abs(band.pullY - band.y) < 1 && Math.abs(band.pullVelocity) < 0.1;
+    trekMyIndicator.style.opacity = isBandStatic ? '1' : '0';
+    trekMyIndicator.style.top = `${band.y + 15}px`;
+    trekMyIndicator.style.left = `${canvas.width / 2}px`;
+}
+
+/**
+ * Updates the band's spring physics when not being dragged.
+ */
+function updateBand() {
+    if (band.isDragging) return;
+
+    const displacement = band.pullY - band.y;
+    if (Math.abs(displacement) < 0.5 && Math.abs(band.pullVelocity) < 0.5) {
+        band.pullY = band.y;
+        band.pullVelocity = 0;
+        return;
+    }
+
+    const springForce = -band.stiffness * displacement;
+    band.pullVelocity += springForce;
+    band.pullVelocity *= band.damping; // Apply damping
+    band.pullY += band.pullVelocity;
+}
+
+/**
+ * Finds the winning ball(s) and displays their names.
+ */
+function displayResults() {
+    if (balls.length === 0) return;
+
+    const winner = balls.reduce((leftmost, current) => {
+        return current.position.x < leftmost.position.x ? current : leftmost;
+    });
+    
+    if (winner && winner.name) {
+        winnerName.textContent = winner.name;
+        resultsContainer.style.opacity = '1';
+        resultsVisible = true;
+
+        // Use a timeout to ensure the results container has rendered and its position is final
+        setTimeout(() => {
+            if (!resultsVisible) return; // Don't draw if results were hidden again quickly
+            const winnerRect = winnerName.getBoundingClientRect();
+            const containerRect = canvas.parentElement!.getBoundingClientRect();
+
+            const startX = winnerRect.left - containerRect.left - 15;
+            const startY = winnerRect.top - containerRect.top + (winnerRect.height / 2);
+
+            const endX = winner.position.x;
+            // Adjust endY to stop above the ball, leaving a small gap.
+            const endY = winner.position.y - winner.radius - 15;
             
-            types.forEach(type => {
-                const canvas = document.getElementById(`preview-canvas-${type}`);
-                // Initialize only if the canvas exists and hasn't been processed yet
-                if (canvas && !previewCanvases[type]) { 
-                    const ball = {
-                        position: { x: canvas.width / 2, y: canvas.height / 2 },
-                        velocity: { x: 0, y: 0 },
-                        radius: radius,
-                        mass: radius,
-                        color: WINE_COLORS[type],
-                        type: type,
-                        liquidAngle: 0.1, // A slight static tilt for visual interest
-                        liquidAngularVelocity: 0,
-                        waveAmplitude: radius * 0.25,
-                        waveFrequency: Math.PI / radius,
-                        wavePhase: Math.random() * Math.PI * 2,
-                    };
-                    previewCanvases[type] = {
-                        canvas,
-                        ctx: canvas.getContext('2d'),
-                        ball
-                    };
+            // Define control points for a cubic Bézier curve (C).
+            // This creates a path that curves left from the text, then sweeps down towards the ball.
+            
+            // Control point 1: Pulls the curve horizontally left from the start point.
+            // This makes the arrow initially move left, avoiding other balls.
+            const control1X = startX - 100;
+            const control1Y = startY;
+
+            // Control point 2: Positioned above the end point to make the arrow arrive vertically.
+            const control2X = endX;
+            const control2Y = endY - 100;
+
+            const pathData = `M ${startX} ${startY} C ${control1X} ${control1Y}, ${control2X} ${control2Y}, ${endX} ${endY}`;
+            winnerArrowPath.setAttribute('d', pathData);
+            winnerArrowSvg.style.opacity = '1';
+        }, 50); // Small delay for rendering
+    }
+}
+
+
+/**
+ * The main simulation loop.
+ */
+function loop() {
+    updateBand();
+
+    // Physics for ball contents
+    balls.forEach(ball => {
+        // Liquid physics
+        const speed = Math.sqrt(ball.velocity.x ** 2 + ball.velocity.y ** 2);
+        const isNearBottom = ball.position.y + ball.radius > canvas.height - 1;
+        const isNearBand = Math.abs(band.pullY - band.y) < 1 && Math.abs(ball.position.y + ball.radius - band.y) < 1;
+        const isResting = speed < 0.1 && (isNearBand || isNearBottom);
+
+        let tiltDamping = 0.95;
+        let waveDamping = 0.98;
+        let targetAngle = -ball.velocity.x * 0.05;
+
+        if (isResting) {
+            tiltDamping = 0.85;
+            waveDamping = 0.9;
+            targetAngle = 0;
+        }
+
+        const angleDifference = targetAngle - ball.liquidAngle;
+        const springForce = angleDifference * 0.01;
+        ball.liquidAngularVelocity += springForce;
+        ball.liquidAngularVelocity *= tiltDamping;
+        ball.liquidAngle += ball.liquidAngularVelocity;
+
+        ball.wavePhase += 0.2;
+        ball.waveAmplitude *= waveDamping;
+
+        if (isResting) {
+            if (Math.abs(ball.liquidAngle) < 0.001 && Math.abs(ball.liquidAngularVelocity) < 0.001) {
+                ball.liquidAngle = 0;
+                ball.liquidAngularVelocity = 0;
+            }
+            if (ball.waveAmplitude < 0.05) ball.waveAmplitude = 0;
+        } else {
+             if (ball.waveAmplitude < 0.1) ball.waveAmplitude = 0;
+        }
+
+        // Lemon physics for Gin balls - floats on liquid
+        if (ball.type === 'gin' && ball.lemonPosition && ball.lemonVelocity && ball.lemonAngle !== undefined) {
+            // 1. Update horizontal position and apply damping
+            ball.lemonPosition.x += ball.lemonVelocity.x;
+            ball.lemonVelocity.x *= 0.95; // Liquid drag on x-axis
+
+            // 2. Keep lemon inside the liquid horizontally
+            const lemonSize = ball.radius * 0.6;
+            const maxLemonX = ball.radius - lemonSize * 0.5;
+            if (Math.abs(ball.lemonPosition.x) > maxLemonX) {
+                ball.lemonPosition.x = Math.sign(ball.lemonPosition.x) * maxLemonX;
+                ball.lemonVelocity.x *= -0.5; // Bounce off the side
+            }
+            
+            // 3. Set vertical position to match the liquid wave
+            ball.lemonPosition.y = Math.sin(ball.lemonPosition.x * ball.waveFrequency + ball.wavePhase) * ball.waveAmplitude;
+
+            // 4. Calculate target angle to align with the wave surface
+            const waveDerivative = Math.cos(ball.lemonPosition.x * ball.waveFrequency + ball.wavePhase) * ball.waveAmplitude * ball.waveFrequency;
+            const targetLemonAngle = Math.atan(waveDerivative);
+            
+            // 5. Smoothly interpolate current angle towards the target angle
+            ball.lemonAngle += (targetLemonAngle - ball.lemonAngle) * 0.1;
+        }
+
+        // Ice cube physics for Whisky balls
+        if (ball.type === 'whisky' && ball.iceCubes) {
+            // A. Individual cube physics
+            ball.iceCubes.forEach(cube => {
+                // 1. Buoyancy and vertical motion
+                const liquidY = Math.sin(cube.position.x * ball.waveFrequency + ball.wavePhase) * ball.waveAmplitude;
+                const buoyancy = (liquidY - cube.position.y) * 0.05; // Force pulling cube to surface
+                cube.velocity.y += buoyancy;
+                cube.velocity.y *= 0.92; // Vertical drag
+                cube.position.y += cube.velocity.y;
+                
+                // 2. Horizontal motion and drag
+                cube.velocity.x *= 0.97; // Horizontal drag
+                cube.position.x += cube.velocity.x;
+
+                // 3. Rotational motion and drag
+                cube.angularVelocity *= 0.95;
+                cube.angle += cube.angularVelocity;
+
+                // 4. Wall collisions
+                const maxCubeX = ball.radius - cube.size * 0.7; // 0.7 to account for rotation
+                if (Math.abs(cube.position.x) > maxCubeX) {
+                    cube.position.x = Math.sign(cube.position.x) * maxCubeX;
+                    cube.velocity.x *= -0.4;
+                    cube.angularVelocity += cube.velocity.x * 0.02;
                 }
             });
 
-            modalLoop();
-        }
+            // B. Collision between the two ice cubes
+            const [cubeA, cubeB] = ball.iceCubes;
+            const dx = cubeB.position.x - cubeA.position.x;
+            const dy = cubeB.position.y - cubeA.position.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const minDistance = (cubeA.size + cubeB.size) * 0.5; // Approximation
 
-        /**
-         * Stops the animation for the modal previews.
-         */
-        function stopModalAnimation() {
-            if (modalAnimationId) {
-                cancelAnimationFrame(modalAnimationId);
-                modalAnimationId = null;
+            if (distance < minDistance) {
+                const overlap = (minDistance - distance) / 2;
+                const nx = distance > 0 ? dx / distance : 1;
+                const ny = distance > 0 ? dy / distance : 0;
+
+                // Position correction
+                cubeA.position.x -= overlap * nx;
+                cubeA.position.y -= overlap * ny;
+                cubeB.position.x += overlap * nx;
+                cubeB.position.y += overlap * ny;
+
+                // Velocity correction (simplified elastic collision)
+                const kx = cubeA.velocity.x - cubeB.velocity.x;
+                const ky = cubeA.velocity.y - cubeB.velocity.y;
+                const p = (nx * kx + ny * ky);
+
+                if (p < 0) { // Only resolve if they are moving towards each other
+                    cubeA.velocity.x -= p * nx;
+                    cubeA.velocity.y -= p * ny;
+                    cubeB.velocity.x += p * nx;
+                    cubeB.velocity.y += p * ny;
+                    
+                    // Add some rotation on impact
+                    cubeA.angularVelocity -= p * 0.02;
+                    cubeB.angularVelocity += p * 0.02;
+                }
             }
         }
+        
+        // Bubble physics for Sparkling balls
+        if (ball.type === 'sparkling' && ball.bubbles) {
+            ball.bubbles.forEach(bubble => {
+                bubble.position.x += bubble.velocity.x;
+                bubble.position.y += bubble.velocity.y;
 
-        /**
-         * Renders the current list of wines to the DOM.
-         */
-        function renderWines() {
-            wineList.innerHTML = '';
-            if (wines.length === 0) {
-                wineList.innerHTML = '<li>No wines added yet. The number of balls is controlled by the input above.</li>';
-            } else {
-                wines.forEach((wine, index) => {
-                    const li = document.createElement('li');
-                    li.innerHTML = `
-                        <div class="wine-info">
-                            <span class="wine-number">${index + 1}.</span>
-                            <div class="wine-color-indicator" style="background-color: ${wine.color};"></div>
-                            <span>${wine.name}</span>
-                        </div>
-                        <button class="delete-wine-btn" data-index="${index}" aria-label="Delete ${wine.name}">&times;</button>
-                    `;
-                    wineList.appendChild(li);
+                // Simple horizontal containment
+                if (Math.abs(bubble.position.x) > ball.radius - bubble.radius) {
+                    bubble.velocity.x *= -1;
+                    bubble.position.x = Math.sign(bubble.position.x) * (ball.radius - bubble.radius);
+                }
+                
+                // Reset when it reaches the top liquid surface
+                const liquidSurfaceY = Math.sin(bubble.position.x * ball.waveFrequency + ball.wavePhase) * ball.waveAmplitude;
+                if (bubble.position.y < liquidSurfaceY) {
+                    bubble.position.x = (Math.random() - 0.5) * ball.radius * 1.8;
+                    bubble.position.y = ball.radius * (0.9 + Math.random() * 0.1); // Start at very bottom
+                    bubble.velocity.y = -(Math.random() * 0.5 + 0.2);
+                }
+            });
+        }
+    });
+
+    for (let i = 0; i < substeps; i++) {
+        balls.forEach(applyPhysics);
+        handleCollisions();
+    }
+
+    // --- Result Display Logic ---
+    const totalSpeed = balls.reduce((sum, ball) => {
+        return sum + Math.abs(ball.velocity.x) + Math.abs(ball.velocity.y);
+    }, 0);
+
+    const isBandAtRest = !band.isDragging && Math.abs(band.pullY - band.y) < 1 && Math.abs(band.pullVelocity) < 0.1;
+    const isSystemSettled = totalSpeed < MOTION_THRESHOLD && isBandAtRest;
+
+    if (isSystemSettled && !resultsVisible && hasInteracted) {
+        displayResults();
+    }
+
+    draw();
+    requestAnimationFrame(loop);
+}
+
+// --- Event Handlers ---
+
+function getEventCoords(e: MouseEvent | TouchEvent): Vector {
+    if ('touches' in e) {
+        e.preventDefault();
+        return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }
+    return { x: e.clientX, y: e.clientY };
+}
+
+function handleStart(e: MouseEvent | TouchEvent) {
+    hideResults();
+    const coords = getEventCoords(e);
+    const isBandPulled = band.pullY > band.y;
+    if (Math.abs(coords.y - band.y) < band.pullThreshold || (isBandPulled && coords.y > band.y)) {
+        band.isDragging = true;
+        band.pullVelocity = 0;
+        band.pullX = coords.x;
+        band.pullY = Math.max(coords.y, band.y);
+    }
+}
+
+function handleMove(e: MouseEvent | TouchEvent) {
+    if (!band.isDragging) return;
+    const coords = getEventCoords(e);
+    band.pullX = coords.x;
+    band.pullY = Math.max(coords.y, band.y);
+}
+
+function handleEnd() {
+    if (!band.isDragging) return;
+    if (band.pullY > band.y + band.pullThreshold / 2) {
+        hasInteracted = true;
+    }
+    band.isDragging = false;
+}
+
+
+// --- Wine List and Modal Logic ---
+
+/**
+ * The animation loop for the preview canvases in the modal.
+ */
+function modalLoop() {
+    Object.keys(previewCanvases).forEach(key => {
+        const data = previewCanvases[key];
+        const { canvas, ctx, ball } = data;
+        
+        if (ball.type !== 'sparkling') {
+            ball.wavePhase += 0.05; // Gentle wave motion
+        } else {
+            ball.wavePhase += 0.02; // Slower wave for sparkling
+             if (ball.bubbles) {
+                ball.bubbles.forEach(bubble => {
+                    bubble.position.y -= 0.3; // Simple upward movement
+                    if (bubble.position.y < -ball.radius) {
+                        bubble.position.y = ball.radius; // Reset to bottom
+                        bubble.position.x = (Math.random() - 0.5) * ball.radius * 1.8;
+                    }
                 });
             }
-            updateSimulationSource();
         }
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawBallOnContext(ctx, ball);
+    });
+    modalAnimationId = requestAnimationFrame(modalLoop);
+}
 
-        /**
-         * Updates the simulation based on whether there are wines or not.
-         */
-        function updateSimulationSource() {
-            if (wines.length > 0) {
-                ballCountInput.disabled = true;
-                ballCountInput.value = wines.length.toString();
-            } else {
-                ballCountInput.disabled = false;
-                numBalls = parseInt(ballCountInput.value, 10);
+/**
+ * Initializes and starts the animation for the modal previews.
+ */
+function startModalAnimation() {
+    if (modalAnimationId) return; // Already running
+
+    const types = ['red', 'white', 'rose', 'sparkling', 'dessert', 'gin', 'whisky'];
+    const radius = 28; // Radius for the preview balls
+    
+    types.forEach(type => {
+        const canvas = document.getElementById(`preview-canvas-${type}`) as HTMLCanvasElement;
+        // Initialize only if the canvas exists and hasn't been processed yet
+        if (canvas && !previewCanvases[type]) { 
+            const ball: Ball = {
+                position: { x: canvas.width / 2, y: canvas.height / 2 },
+                velocity: { x: 0, y: 0 },
+                radius: radius,
+                mass: radius,
+                color: WINE_COLORS[type],
+                type: type,
+                liquidAngle: 0.1, // A slight static tilt for visual interest
+                liquidAngularVelocity: 0,
+                waveAmplitude: radius * 0.25,
+                waveFrequency: Math.PI / radius,
+                wavePhase: Math.random() * Math.PI * 2,
+            };
+             if (type === 'gin') {
+                ball.lemonPosition = {x: 0, y: 0};
+                ball.lemonAngle = 0.5;
             }
+             if (type === 'whisky') {
+                const iceSize = radius * 0.4;
+                ball.iceCubes = [
+                    {
+                        position: { x: -radius * 0.25, y: 0 },
+                        velocity: { x: 0, y: 0 },
+                        angle: 0.2,
+                        angularVelocity: 0,
+                        size: iceSize
+                    },
+                    {
+                        position: { x: radius * 0.25, y: -iceSize * 0.5 },
+                        velocity: { x: 0, y: 0 },
+                        angle: -0.3,
+                        angularVelocity: 0,
+                        size: iceSize
+                    }
+                ];
+            }
+            if (type === 'sparkling') {
+                ball.bubbles = [];
+                const numBubbles = 15;
+                for (let j = 0; j < numBubbles; j++) {
+                    ball.bubbles.push({
+                        position: {
+                            x: (Math.random() - 0.5) * radius * 1.8,
+                            y: (Math.random() * 2 - 1) * radius
+                        },
+                        velocity: { x: 0, y: 0 },
+                        radius: Math.random() * 1.0 + 0.5
+                    });
+                }
+            }
+            previewCanvases[type] = {
+                canvas,
+                ctx: canvas.getContext('2d')!,
+                ball
+            };
+        }
+    });
+
+    modalLoop();
+}
+
+/**
+ * Stops the animation for the modal previews.
+ */
+function stopModalAnimation() {
+    if (modalAnimationId) {
+        cancelAnimationFrame(modalAnimationId);
+        modalAnimationId = null;
+    }
+}
+
+/**
+ * Renders the current list of wines to the DOM.
+ */
+function renderWines() {
+    wineList.innerHTML = '';
+    if (wines.length === 0) {
+        wineList.innerHTML = '<li>Nog geen drankies bygevoeg nie. Die aantal balletjies word deur die invoer hierbo beheer.</li>';
+    } else {
+        wines.forEach((wine, index) => {
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <div class="wine-info">
+                    <span class="wine-number">${index + 1}.</span>
+                    <div class="wine-color-indicator" style="background-color: ${wine.color};"></div>
+                    <span>${wine.name}</span>
+                </div>
+                <button class="delete-wine-btn" data-index="${index}" aria-label="Delete ${wine.name}">&times;</button>
+            `;
+            wineList.appendChild(li);
+        });
+    }
+    updateSimulationSource();
+}
+
+/**
+ * Updates the simulation based on whether there are wines or not.
+ */
+function updateSimulationSource() {
+    if (wines.length > 0) {
+        ballCountInput.disabled = true;
+        ballCountInput.value = wines.length.toString();
+    } else {
+        ballCountInput.disabled = false;
+        numBalls = parseInt(ballCountInput.value, 10);
+    }
+    initBalls();
+}
+
+function showModal() {
+    modal.style.display = 'flex';
+    startModalAnimation();
+}
+
+function hideModal() {
+    modal.style.display = 'none';
+    addWineForm.reset();
+    stopModalAnimation();
+}
+
+function handleAddWine(e: Event) {
+    e.preventDefault();
+    const name = wineNameInput.value.trim();
+    if (!name) {
+        alert('Voer asseblief \\'n drankie se naam in.');
+        return;
+    }
+    const type = (addWineForm.querySelector('input[name="wine-type"]:checked') as HTMLInputElement).value;
+
+    wines.push({ name, type, color: WINE_COLORS[type] });
+    saveWinesToLocalStorage();
+
+    renderWines();
+    hideModal();
+}
+
+function handleDeleteWine(e: MouseEvent) {
+    const target = e.target as HTMLElement;
+    if (target.classList.contains('delete-wine-btn')) {
+        const index = parseInt(target.getAttribute('data-index')!, 10);
+        wines.splice(index, 1);
+        saveWinesToLocalStorage();
+        renderWines();
+    }
+}
+
+// --- Initialization ---
+
+sparklingFloatToggle.addEventListener('change', () => {
+    sparklingFloat = sparklingFloatToggle.checked;
+    // Hide results when mode is changed as they may become invalid
+    hideResults();
+    hasInteracted = false; // Require a new launch to show results again
+});
+
+ballCountInput.addEventListener('input', () => {
+    const count = parseInt(ballCountInput.value, 10);
+    if (!isNaN(count) && count > 0 && count <= 50) {
+        numBalls = count;
+        // Only re-init if not controlled by wines
+        if (wines.length === 0) {
             initBalls();
         }
+    }
+});
 
-        function showModal() {
-            modal.style.display = 'flex';
-            startModalAnimation();
-        }
+addWineBtn.addEventListener('click', showModal);
+cancelBtn.addEventListener('click', hideModal);
+modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+        hideModal();
+    }
+});
+addWineForm.addEventListener('submit', handleAddWine);
+wineList.addEventListener('click', handleDeleteWine as EventListener);
 
-        function hideModal() {
-            modal.style.display = 'none';
-            addWineForm.reset();
-            stopModalAnimation();
-        }
+// Settings screen listeners
+burgerMenuBtn.addEventListener('click', () => {
+    settingsScreen.style.display = 'flex';
+});
+closeSettingsBtn.addEventListener('click', () => {
+    settingsScreen.style.display = 'none';
+});
 
-        function handleAddWine(e) {
-            e.preventDefault();
-            const name = wineNameInput.value.trim();
-            if (!name) {
-                alert('Please enter a wine name.');
-                return;
-            }
-            const type = (addWineForm.querySelector('input[name="wine-type"]:checked')).value;
+window.addEventListener('resize', resizeCanvas);
+canvas.addEventListener('mousedown', handleStart as EventListener);
+canvas.addEventListener('mousemove', handleMove as EventListener);
+window.addEventListener('mouseup', handleEnd);
+canvas.addEventListener('touchstart', handleStart as EventListener, { passive: false });
+canvas.addEventListener('touchmove', handleMove as EventListener, { passive: false });
+window.addEventListener('touchend', handleEnd);
+window.addEventListener('touchcancel', handleEnd);
 
-            wines.push({ name, type, color: WINE_COLORS[type] });
-
-            renderWines();
-            hideModal();
-        }
-
-        function handleDeleteWine(e) {
-            const target = e.target;
-            if (target.classList.contains('delete-wine-btn')) {
-                const index = parseInt(target.getAttribute('data-index'), 10);
-                wines.splice(index, 1);
-                renderWines();
-            }
-        }
-
-        // --- Initialization ---
-
-        bubblesFloatToggle.addEventListener('change', () => {
-            bubblesFloat = bubblesFloatToggle.checked;
-        });
-
-        ballCountInput.addEventListener('input', () => {
-            const count = parseInt(ballCountInput.value, 10);
-            if (!isNaN(count) && count > 0 && count <= 50) {
-                numBalls = count;
-                // Only re-init if not controlled by wines
-                if (wines.length === 0) {
-                    initBalls();
-                }
-            }
-        });
-
-        addWineBtn.addEventListener('click', showModal);
-        cancelBtn.addEventListener('click', hideModal);
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                hideModal();
-            }
-        });
-        addWineForm.addEventListener('submit', handleAddWine);
-        wineList.addEventListener('click', handleDeleteWine);
-
-        window.addEventListener('resize', resizeCanvas);
-        canvas.addEventListener('mousedown', handleStart);
-        canvas.addEventListener('mousemove', handleMove);
-        window.addEventListener('mouseup', handleEnd);
-        canvas.addEventListener('touchstart', handleStart, { passive: false });
-        canvas.addEventListener('touchmove', handleMove, { passive: false });
-        window.addEventListener('touchend', handleEnd);
-        window.addEventListener('touchcancel', handleEnd);
-
-        resizeCanvas();
-        renderWines();
-        loop();
+// Initial setup
+wines = loadWinesFromLocalStorage();
+resizeCanvas();
+renderWines();
+loop();
     </script>
 </body>
 </html>
