@@ -553,7 +553,7 @@
                             <input type="radio" name="wine-type" value="white">
                             <div class="wine-type-option">
                                 <canvas id="preview-canvas-white" width="56" height="56"></canvas>
-                                <span>Wiwyn</span>
+                                <span>Witwyn</span>
                             </div>
                         </label>
                          <label>
@@ -596,13 +596,6 @@
                              <div class="wine-type-option">
                                 <canvas id="preview-canvas-beer" width="56" height="56"></canvas>
                                 <span>Bier</span>
-                            </div>
-                        </label>
-                        <label>
-                            <input type="radio" name="wine-type" value="cocktail">
-                            <div class="wine-type-option">
-                                <canvas id="preview-canvas-cocktail" width="56" height="56"></canvas>
-                                <span>Skemerkelkie</span>
                             </div>
                         </label>
                     </div>
@@ -658,7 +651,6 @@
             dessert: '#e67e22',
             gin: '#f0f8ff', // AliceBlue, used for list icon
             whisky: '#A0522D', // Sienna
-            cocktail: '#ff7e5f', // Coral
             beer: '#f0c040',   // Amber
         };
 
@@ -798,9 +790,9 @@
                     newBall.lemonAngle = Math.random() * Math.PI * 2;
                 }
 
-                if (wine?.type === 'whisky' || wine?.type === 'cocktail') {
-                    const iceSize = newBall.radius * (wine.type === 'cocktail' ? 0.5 : 0.4);
-                    const numCubes = wine.type === 'cocktail' ? 1 : 2;
+                if (wine?.type === 'whisky') {
+                    const iceSize = newBall.radius * 0.4;
+                    const numCubes = 2;
                     newBall.iceCubes = [];
                     for(let k = 0; k < numCubes; k++) {
                         newBall.iceCubes.push({
@@ -829,15 +821,6 @@
                             radius: Math.random() * 1.2 + 0.5,
                         });
                     }
-                }
-
-                if (wine?.type === 'cocktail') {
-                    newBall.garnish = {
-                        position: { x: 0, y: 0 },
-                        velocity: { x: (Math.random() - 0.5) * 0.5, y: 0 },
-                        angle: Math.random() * Math.PI * 2,
-                        radius: newBall.radius * 0.2
-                    };
                 }
 
                 if (wine?.type === 'beer') {
@@ -1133,8 +1116,8 @@
                 });
             }
 
-            // D: Draw Whisky's & Cocktail's ice cubes
-            if ((ball.type === 'whisky' || ball.type === 'cocktail') && ball.iceCubes) {
+            // D: Draw Whisky's ice cubes
+            if (ball.type === 'whisky' && ball.iceCubes) {
                 context.fillStyle = 'rgba(255, 255, 255, 0.8)';
                 context.strokeStyle = 'rgba(255, 255, 255, 0.9)';
                 context.lineWidth = isPreview ? 1 : 2;
@@ -1167,30 +1150,6 @@
                 context.stroke();
                 context.restore();
             }
-            
-            // F: Draw Cocktail's garnish (cherry)
-            if (ball.type === 'cocktail' && ball.garnish) {
-                context.save();
-                context.translate(ball.garnish.position.x, ball.garnish.position.y);
-                context.rotate(ball.garnish.angle);
-                
-                // Stem
-                context.strokeStyle = '#27ae60';
-                context.lineWidth = isPreview ? 1 : 2;
-                context.beginPath();
-                context.moveTo(0, 0);
-                context.lineTo(ball.garnish.radius, -ball.garnish.radius);
-                context.stroke();
-
-                // Cherry
-                context.fillStyle = '#c0392b';
-                context.beginPath();
-                context.arc(0, 0, ball.garnish.radius, 0, Math.PI * 2);
-                context.fill();
-                
-                context.restore();
-            }
-
 
             // G: Draw liquid surface highlight
             context.beginPath();
@@ -1419,27 +1378,8 @@
                     ball.lemonAngle += (targetLemonAngle - ball.lemonAngle) * 0.1;
                 }
 
-                // Garnish physics for Cocktail balls (similar to lemon)
-                if (ball.type === 'cocktail' && ball.garnish) {
-                    const garnish = ball.garnish;
-                    garnish.position.x += garnish.velocity.x;
-                    garnish.velocity.x *= 0.95;
-
-                    const maxGarnishX = ball.radius - garnish.radius;
-                    if (Math.abs(garnish.position.x) > maxGarnishX) {
-                        garnish.position.x = Math.sign(garnish.position.x) * maxGarnishX;
-                        garnish.velocity.x *= -0.5;
-                    }
-                    
-                    garnish.position.y = Math.sin(garnish.position.x * ball.waveFrequency + ball.wavePhase) * ball.waveAmplitude;
-                    const waveDerivative = Math.cos(garnish.position.x * ball.waveFrequency + ball.wavePhase) * ball.waveAmplitude * ball.waveFrequency;
-                    const targetGarnishAngle = Math.atan(waveDerivative);
-                    garnish.angle += (targetGarnishAngle - garnish.angle) * 0.1;
-                }
-
-
-                // Ice cube physics for Whisky and Cocktail balls
-                if ((ball.type === 'whisky' || ball.type === 'cocktail') && ball.iceCubes) {
+                // Ice cube physics for Whisky balls
+                if (ball.type === 'whisky' && ball.iceCubes) {
                     // A. Individual cube physics
                     ball.iceCubes.forEach(cube => {
                         const liquidY = Math.sin(cube.position.x * ball.waveFrequency + ball.wavePhase) * ball.waveAmplitude;
@@ -1640,7 +1580,7 @@
         function startModalAnimation() {
             if (modalAnimationId) return; // Already running
 
-            const types = ['red', 'white', 'rose', 'sparkling', 'dessert', 'gin', 'whisky', 'beer', 'cocktail'];
+            const types = ['red', 'white', 'rose', 'sparkling', 'dessert', 'gin', 'whisky', 'beer'];
             const radius = 28; // Radius for the preview balls
             
             types.forEach(type => {
@@ -1664,21 +1604,21 @@
                         ball.lemonPosition = {x: 0, y: 0};
                         ball.lemonAngle = 0.5;
                     }
-                    if (type === 'whisky' || type === 'cocktail') {
+                    if (type === 'whisky') {
                         const iceSize = radius * 0.4;
-                        ball.iceCubes = [{
-                            position: { x: -radius * 0.2, y: 0 },
-                            velocity: { x: 0, y: 0 },
-                            angle: 0.2,
-                            angularVelocity: 0,
-                            size: iceSize
-                        }];
-                        if (type === 'whisky') {
-                            ball.iceCubes.push({
+                        ball.iceCubes = [
+                            {
+                                position: { x: -radius * 0.2, y: 0 },
+                                velocity: { x: 0, y: 0 },
+                                angle: 0.2,
+                                angularVelocity: 0,
+                                size: iceSize
+                            },
+                            {
                                 position: { x: radius * 0.25, y: -iceSize * 0.5 },
                                 velocity: { x: 0, y: 0 }, angle: -0.3, angularVelocity: 0, size: iceSize
-                            });
-                        }
+                            }
+                        ];
                     }
                     if (type === 'sparkling') {
                         ball.bubbles = [];
@@ -1693,9 +1633,6 @@
                                 radius: Math.random() * 1.0 + 0.5
                             });
                         }
-                    }
-                    if (type === 'cocktail') {
-                        ball.garnish = { position: {x: 0, y: 0}, velocity: {x: 0, y: 0}, angle: 0.5, radius: radius * 0.2 };
                     }
                     if (type === 'beer') {
                         ball.foamParticles = [];
